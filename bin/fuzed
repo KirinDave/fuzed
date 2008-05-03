@@ -3,14 +3,8 @@
 require 'digest/md5'
 require 'resolv'
 
-if __FILE__ == "/p/bin/fuzed"
-  $:.unshift(File.join("/p/libexec/erlang/fuzed/rlibs"))
-  $:.unshift(File.join("/p/libexec/erlang/fuzed/rlibs/cli"))
-  FUZED_ROOT = "/p/libexec/erlang/fuzed"
-else
-  $:.unshift(File.join(File.dirname(__FILE__), *%w[.. rlibs]))
-  FUZED_ROOT = File.join(File.dirname(__FILE__), *%w[..])
-end
+$:.unshift(File.join(File.dirname(__FILE__), *%w[.. rlibs]))
+FUZED_ROOT = File.join(File.dirname(__FILE__), *%w[..])
 
 CMD_LINE_PATH = File.join(FUZED_ROOT, *%w[rlibs cli])
 CMD_LINE_COMMANDS = Dir[CMD_LINE_PATH + "/*.rb"].map { |fname| File.basename(fname).split(".")[0].downcase }
@@ -20,11 +14,11 @@ $:.unshift(CMD_LINE_PATH)
 DEFAULT_NODE_NAME = `hostname -s`.chomp + "-#{rand(9999)}"
 DEFAULT_MASTER_NODE = "master@fuzed-dev.powerset.com"
 DEFAULT_REMOTE_RUBY = "http://fuzed-dev.powerset.com:9001/code"
-DEFAULT_ERLANG_CODEPATHS = %w[ebin/yaws ebin/eunit etest ebin/thrift ebin]
+DEFAULT_ERLANG_CODEPATHS = %w[ebin/yaws ebin/eunit etest ebin]
 DEFAULT_BOOT_DIR = "/p/conf/fuzed/"
 
 def cookie_hash(node)
-  Digest::MD5.hexdigest(node  + "-powerset")
+  Digest::MD5.hexdigest(node  + "-fuzed-changethis-btw-kkthx")
 end
 
 def rel(path)

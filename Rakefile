@@ -3,7 +3,7 @@ require 'rubygems'
 require 'rake'
 
 ERLC_TEST_FLAGS = "-pa ../ebin/eunit -I .. -I ../etest -I ../include/eunit -DTEST"
-ERLC_FLAGS = "+debug_info -W2 -I ../include -I ../include/thrift -I ../include/yaws -o ../ebin"
+ERLC_FLAGS = "+debug_info -W2 -I ../include -I ../include/yaws -o ../ebin"
 FUZED_VERSION = "0.4.13"
 
 task :default do
