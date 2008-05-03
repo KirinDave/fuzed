@@ -10,13 +10,12 @@ out404(A, _GC, SC) ->
                                          Parameters, 
                                          {handle_request, {request}},
                                          pure,
-                                         details()) ->
-      {result, R} -> 
-                                         
-  Resource = rails_connection_pool:get(),
-  Result = rails_forwarder:handle_request(Resource, A, SC, 60000),
-  rails_connection_pool:refund(Resource),
-  Result.
+                                         details()) of
+    {result, R} -> 
+      convert_response(R);
+    {error, _R} ->
+      [{status, 500}, {html, "Sumpin fucked."}]
+  end.                                                        
 
 parse_arg(Request, ServerOptions) ->
   Headers = Request#arg.headers,
