@@ -2,9 +2,9 @@ def create_spec_list(options)
   spec_list = []
   result = ""
   result.concat("/p/bin/xlew ") if options[:xlew]
-  result.concat("ruby -I/p/libexec/id2 #{ID2_ROOT + "/rlibs/pontoon.rb "}")
-  raise "You must specify an id2 file to join the id2 cluster!" unless options[:id2file]
-  result.concat(options[:id2file] + " ")
+  result.concat("ruby -I/p/libexec/fuzed #{FUZED_ROOT + "/rlibs/pontoon.rb "}")
+  raise "You must specify an fuzed file to join the fuzed cluster!" unless options[:fuzedfile]
+  result.concat(options[:fuzedfile] + " ")
   result.concat(%{#{options[:remote_ruby] || DEFAULT_REMOTE_RUBY} })
   result.concat(%{--tags="#{options[:tags]}" }) if options[:tags]
   roles = []
@@ -23,7 +23,7 @@ end
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: id2 command [options]"
+  opts.banner = "Usage: fuzed command [options]"
   
   opts.on("-z HOSTNAME", "--magic HOSTNAME", "Set smart details based off of a hostname") do |n|
     options[:master_name] = "master@#{n}"
@@ -34,15 +34,15 @@ OptionParser.new do |opts|
     options[:name] = n
   end
   
-  opts.on("-f ID2FILE", "--id2file FILENAME", "ID2 spec file to use to serve nodes") do |n|
-    options[:id2file] = n
+  opts.on("-f FUZEDFILE", "--fuzedfile FILENAME", "FUZED spec file to use to serve nodes") do |n|
+    options[:fuzedfile] = n
   end
   
   opts.on("-m NAME", "--master NAME", "Master node name") do |n|
     options[:master_name] = n
   end
   
-  opts.on("-s", "--spec SPECSTRING", "||-separated list of arguments to apply to your ID2 node") do |n|
+  opts.on("-s", "--spec SPECSTRING", "||-separated list of arguments to apply to your FUZED node") do |n|
     options[:spec] = n
   end
   
@@ -90,7 +90,7 @@ master = options[:master_name] || DEFAULT_MASTER_NODE
 nodename = options[:name] || DEFAULT_NODE_NAME
 
 if master !~ /@/
-  abort "Please specify fully qualified master node name e.g. -m master@id2.tools.powerset.com"
+  abort "Please specify fully qualified master node name e.g. -m master@fuzed.tools.powerset.com"
 end
 
 spec = %{[} + create_spec_list(options).map {|x| %{"#{x}"}}.join(",") + %{]}
@@ -119,11 +119,11 @@ cmd = %Q{erl -boot start_sasl \
              #{code_paths}
              -name '#{nodename}' \
              -setcookie #{cookie_hash(master)} \
-             -id2_node master "'#{master}'" \
-             -id2_node spec '#{spec}' \
-             -id2_node num_nodes #{num_nodes} \
+             -fuzed_node master "'#{master}'" \
+             -fuzed_node spec '#{spec}' \
+             -fuzed_node num_nodes #{num_nodes} \
              #{inet} \
-             -config '#{ID2_ROOT}/conf/id2_base' \
-             -run id2_node start}.squeeze(' ')
+             -config '#{FUZED_ROOT}/conf/fuzed_base' \
+             -run fuzed_node start}.squeeze(' ')
 puts cmd
 exec(cmd)

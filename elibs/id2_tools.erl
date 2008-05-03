@@ -1,4 +1,4 @@
--module(id2_tools).
+-module(fuzed_tools).
 -compile(export_all).
 
 testing_bootstrap() -> 

@@ -1,15 +1,15 @@
 require 'helper'
 
-require 'id2_auto_config'
+require 'fuzed_auto_config'
 
-DEFAULT_BOOT_FILE = "/p/conf/id2/default.yml"
+DEFAULT_BOOT_FILE = "/p/conf/fuzed/default.yml"
 
 class TestCliBoot < Test::Unit::TestCase
   def test_default_config
     ARGV.clear
     ARGV << '' << File.join(File.dirname(__FILE__), *%w[fixtures boot default.yml])
     
-    ID2AutoConfig.expects(:new).returns(stub(:is_master? => false,
+    FUZEDAutoConfig.expects(:new).returns(stub(:is_master? => false,
                                              :master_hostname => 'aa0-foo',
                                              :master_nodename => 'master'))
     
@@ -22,7 +22,7 @@ class TestCliBoot < Test::Unit::TestCase
     ARGV.clear
     ARGV << '' << File.join(File.dirname(__FILE__), *%w[fixtures boot configs])
     
-    ID2AutoConfig.expects(:new).returns(stub(:is_master? => false,
+    FUZEDAutoConfig.expects(:new).returns(stub(:is_master? => false,
                                              :master_hostname => 'aa0-foo',
                                              :master_nodename => 'master'))
     

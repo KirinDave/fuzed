@@ -1,9 +1,9 @@
-require 'id2_auto_config'
+require 'fuzed_auto_config'
 
-environment = ID2AutoConfig.new
+environment = FUZEDAutoConfig.new
 options = {:master => :default}
 OptionParser.new do |opts|
-  opts.banner = "Usage: id2 publish [-m master]"
+  opts.banner = "Usage: fuzed publish [-m master]"
   
   opts.on("-m", "--master TARGETNODE", "Master node for cookie generation. Defaults to your target.") do |arg|
     options[:master] = arg

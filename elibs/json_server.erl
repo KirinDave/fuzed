@@ -28,7 +28,7 @@ yaws_global_configs(Port, DocRoot) ->
               listen = {0,0,0,0},
               docroot = DocRoot, 
               appmods = [{"api", generic_json_responder},
-                         {"status", id2_status}]},
+                         {"status", fuzed_status}]},
   {GC,SC}.
 
 yaws_begin_server({GC,SC}) -> 

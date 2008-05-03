@@ -1,9 +1,9 @@
-{application, id2_node,
-  [{description, "ID2 Handler Node"},
+{application, fuzed_node,
+  [{description, "FUZED Handler Node"},
    {vsn, "0.4.0"},
-   {modules, [id2_node_app, id2_node_supervisor, resource_manager]},
-   {registered, [resource_manager, id2_node_supervisor]},
+   {modules, [fuzed_node_app, fuzed_node_supervisor, resource_manager]},
+   {registered, [resource_manager, fuzed_node_supervisor]},
    {applications, [kernel, stdlib]},
-   {mod, {id2_node_app, []}},
+   {mod, {fuzed_node_app, []}},
    {start_phases, []}
   ]}.

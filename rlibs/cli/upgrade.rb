@@ -1,7 +1,7 @@
 options = { :kind => :all, :name => "funtimes" }
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: id2 upgrade [options]"
+  opts.banner = "Usage: fuzed upgrade [options]"
   
   opts.on("-n NAME", "--name NAME", "Node name") do |n|
     options[:name] = n
@@ -27,10 +27,10 @@ master = options[:master_name] || DEFAULT_MASTER_NODE
 kind = options[:kind]
 
 if master !~ /@/
-  abort "Please specify fully qualified master node name e.g. -m master@id2.tools.powerset.com"
+  abort "Please specify fully qualified master node name e.g. -m master@fuzed.tools.powerset.com"
 end
 
 cmd = %Q{erl -noshell -name '#{name}' -setcookie #{cookie_hash(master)} \
-             -eval "rpc:call('#{master}', id2_code_monitor, global_upgrade, ['#{kind}']), halt()."}.squeeze(' ')
+             -eval "rpc:call('#{master}', fuzed_code_monitor, global_upgrade, ['#{kind}']), halt()."}.squeeze(' ')
 puts(cmd)
 exec(cmd)

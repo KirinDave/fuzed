@@ -3,5 +3,5 @@
 -export([start/0]).
 
 start() ->
-  id2:start(),
-  id2_node:start().
+  fuzed:start(),
+  fuzed_node:start().

@@ -5,7 +5,7 @@
          api/1, api_signature/1, safely_send_call_to_pool/4, safely_send_call_to_pool/5, send_call/3, send_call/4,
          heat/2]).
 
--include("id2.hrl").
+-include("fuzed.hrl").
 
 -ifdef(TEST).
 -include("../etest/node_api_test.erl").

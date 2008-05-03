@@ -4,7 +4,7 @@
 -export([out/1, rpc_response_point/3, rpc_translator/2, process_detail_rval/1]).
 -include("../include/yaws/yaws.hrl").
 -include("../include/yaws/yaws_api.hrl").
--include("../include/id2.hrl").
+-include("../include/fuzed.hrl").
 
 -ifdef(TEST).
 -include("../etest/generic_json_responder_test.erl").
@@ -54,10 +54,10 @@ rpc_translator(Method, TupleList) ->
         Pool -> {result, jsonify_method_list(resource_pool:api_definition(Pool))}
       end;
     unpublish ->
-      application:set_env(id2, in_rotation, false),
+      application:set_env(fuzed, in_rotation, false),
       {result, "unpublished"};
     publish ->
-      application:set_env(id2, in_rotation, true),
+      application:set_env(fuzed, in_rotation, true),
       {result, "published"};
     nodes_in_pool ->
       case resource_fountain:best_pool_for_details_match(Details) of

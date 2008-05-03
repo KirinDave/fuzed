@@ -1,13 +1,13 @@
 %%%-------------------------------------------------------------------
 %%% Author  : Tom Preston-Werner
 %%%-------------------------------------------------------------------
--module(id2_supervisor).
+-module(fuzed_supervisor).
 -behaviour(supervisor).
 
 -export([start/0, start_shell/0, start_link/1, init/1]).
 
 start() ->
-  application:set_env(id2, in_rotation, true),
+  application:set_env(fuzed, in_rotation, true),
   spawn(fun() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, _Arg = [])
   end).
@@ -17,7 +17,7 @@ start_shell() ->
   unlink(Pid).
   
 start_link(Args) ->
-  application:set_env(id2, in_rotation, true),
+  application:set_env(fuzed, in_rotation, true),
   supervisor:start_link({local, ?MODULE}, ?MODULE, Args).
   
 init([]) ->
@@ -33,7 +33,7 @@ init([]) ->
      {pool_sweeper,
        {pool_sweeper, start_link, []},
        permanent, 10000, worker, [pool_sweeper]},
-     {id2_code_monitor,
-       {id2_code_monitor, start_link, []},
-       permanent, 10000, worker, [id2_code_monitor]}
+     {fuzed_code_monitor,
+       {fuzed_code_monitor, start_link, []},
+       permanent, 10000, worker, [fuzed_code_monitor]}
     ]}}.

@@ -1,2 +1,2 @@
-`id2 local_halt`
-`id2 boot`
+`fuzed local_halt`
+`fuzed boot`

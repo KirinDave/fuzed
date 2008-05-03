@@ -7,11 +7,11 @@
 
 require 'net/http'
 require 'yaml'
-require 'id2_auto_config'
+require 'fuzed_auto_config'
 
 options = {:host => :auto, :port => 9001, :spec => []}
 OptionParser.new do |opts|
-  opts.banner = "Usage: id2 status [options]"
+  opts.banner = "Usage: fuzed status [options]"
   
   opts.on("-c CONFIG", "--config CONFIG", "Configuration file") do |x|
     contents = File.read(x)
@@ -36,7 +36,7 @@ end.parse!
 
 # Won't work on darwin
 if options[:host] == :auto
-  env = ID2AutoConfig.new
+  env = FUZEDAutoConfig.new
   options[:host] = environment.master_hostname
 end
 

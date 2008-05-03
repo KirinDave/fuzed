@@ -1,5 +1,5 @@
 require 'yaml'
-require 'id2_auto_config'
+require 'fuzed_auto_config'
 
 
 def finish_spec(yml_spec, autoconf)
@@ -15,7 +15,7 @@ end
 
 def client_spec_2_cmdline(yml_spec, autoconf)
   yml_spec = finish_spec(yml_spec, autoconf)
-  cmd_set = ["id2 join -d"]
+  cmd_set = ["fuzed join -d"]
   cmd_set << "-x" if yml_spec["xlew"]
   cmd_set << "-n '" + yml_spec["name"] + "'"
   cmd_set << "-f " + yml_spec["kind"]
@@ -56,19 +56,19 @@ def read_configs(path)
   end
 end
 
-id2_bootpath = ARGV[1] || DEFAULT_BOOT_DIR
-environment = ID2AutoConfig.new
+fuzed_bootpath = ARGV[1] || DEFAULT_BOOT_DIR
+environment = FUZEDAutoConfig.new
 
 begin
   commands = []
   if environment.is_master?
-    commands << "id2 start -d -n #{environment.master_nodename}"
+    commands << "fuzed start -d -n #{environment.master_nodename}"
   end
-  configs = read_configs(id2_bootpath)
+  configs = read_configs(fuzed_bootpath)
   commands += configs.map {|x| client_spec_2_cmdline(x, environment)}
   commands.each {|x| puts x ; `#{x}` ; sleep(1) }
 rescue 
-  puts "Failed to boot ID2 during configuration stage.\nError:#{$!}"
+  puts "Failed to boot FUZED during configuration stage.\nError:#{$!}"
   puts $!.backtrace.join("\n")
   exit(1)
 end

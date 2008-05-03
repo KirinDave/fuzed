@@ -1,10 +1,10 @@
 %%%-------------------------------------------------------------------
 %%% Author  : Tom Preston-Werner
 %%%-------------------------------------------------------------------
--module(id2_node_supervisor).
+-module(fuzed_node_supervisor).
 -behaviour(supervisor).
 -export([start/0, start_shell/0, start_link/1, init/1]).
--include("../include/id2.hrl").
+-include("../include/fuzed.hrl").
 
 % Supervisor Functions
 

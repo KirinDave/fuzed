@@ -1,9 +1,9 @@
--module(id2_status).
+-module(fuzed_status).
 -include("../include/yaws/yaws_api.hrl").
 -compile(export_all).
 
 out(Arg) ->
-  case application:get_env(id2, in_rotation) of
+  case application:get_env(fuzed, in_rotation) of
     {ok, true} ->
       case extract_data(Arg#arg.appmoddata) of
         any ->

@@ -105,17 +105,17 @@
         <hr />
         <a id="whatdoineed"></a>
         <h3>What do I need to install in order to use the Katamari cluster?</h3>
-        <p>In order to use ID2, you simply need to install the package "rubygem_katamari" and allow yum to pull
-        in the dependencies. If you would like to run an ID2 node, please talk to Dave Fayram, Tom Werner, or Abhay Kumar 
+        <p>In order to use FUZED, you simply need to install the package "rubygem_katamari" and allow yum to pull
+        in the dependencies. If you would like to run an FUZED node, please talk to Dave Fayram, Tom Werner, or Abhay Kumar 
         for assistance setting the stack up.</p>
         <p><a href="#top">top</a></p>
         <hr />
         <a id="examples"></a>
         <h3>Can you show me some examples of what I can do?</h3>
-        <p>You can test ID2 from an irb instance easily. First start up IRB and require the rubygem_katamari library. Then you can create a tool
+        <p>You can test FUZED from an irb instance easily. First start up IRB and require the rubygem_katamari library. Then you can create a tool
            by using code like the following:</p>
         <blockquote><pre>
-> t = Powerset::Katamari.new( :host => "http://id2.tools.powerset.com:9001/api", 
+> t = Powerset::Katamari.new( :host => "http://fuzed.tools.powerset.com:9001/api", 
                               :kind => "xle",
                               :nl_runtime_stack => "1.2.3-4"
                               :tags => "demo,funtimes",
@@ -128,7 +128,7 @@
            Once you have a configuration you can inspect what methods this version of the service in Katamari generates with the help method:</p>
         <blockquote><pre>
 > t.help
-client = ::Powerset::Katamari.new(:host => "http://id2.tools.powerset.com:9001/api", :kind => "xle", :grammar => "query", ...)
+client = ::Powerset::Katamari.new(:host => "http://fuzed.tools.powerset.com:9001/api", :kind => "xle", :grammar => "query", ...)
 client.semrep_for_sentence(:ruleset => "", :sentence => "")
 client.tokens_for_sentence(:sentence => "")
 client.qel(:options => "", :passage => "")
@@ -157,11 +157,11 @@ client.grammar_info
         </pre></blockquote>
         <p>If you'd like to programmatically probe the system for available configurations, you can use a provided class method like so:</P>
           <blockquote><pre>
- > Powerset::Katamari.available_configurations("http://id2.tools.powerset.com:9001/api")
+ > Powerset::Katamari.available_configurations("http://fuzed.tools.powerset.com:9001/api")
  => [{"nl_runtime_stack" => "1.9.2-37", ...}, ...]
           </pre></blockquote>
-        <p>Please note that ID2 is a distributed environment and most resources available are available in parallel. Usually you can safely
-           run 4-5 threads against a given resource without noticing any performance penalties. Also, remember that a if ID2 comes
+        <p>Please note that FUZED is a distributed environment and most resources available are available in parallel. Usually you can safely
+           run 4-5 threads against a given resource without noticing any performance penalties. Also, remember that a if FUZED comes
            back with a timeout error, this <i>doesn't mean that the query will always fail!</i> XLE resources are finicky and, let's be
            honest here, sometimes buggy. Make sure to retry requests at least once to be sure that they generate timeout errors.</p> 
         <p><a href="#top">top</a></p>

@@ -1,6 +1,6 @@
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: id2 local [options]"
+  opts.banner = "Usage: fuzed local [options]"
   
   opts.on("-o NUMNODES", "--num_nodes NUMNODES", "Number of nodes to run") do |n|
     options[:num_nodes] = n
@@ -14,7 +14,7 @@ end.parse!
 command = ARGV[0]
 
 num_nodes = options[:num_nodes]
-tagarg = options[:tags] ? %{ -id2_node tags '"#{options[:tags]}"' } : ""
+tagarg = options[:tags] ? %{ -fuzed_node tags '"#{options[:tags]}"' } : ""
 cmd = %Q{erl -boot start_sasl \
              +Bc \
              +K true \

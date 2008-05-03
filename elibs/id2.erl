@@ -1,7 +1,7 @@
--module(id2).
+-module(fuzed).
 
 -export([start/0]).
 
 start() ->
-  application:load(id2),
-  application:start(id2).
+  application:load(fuzed),
+  application:start(fuzed).

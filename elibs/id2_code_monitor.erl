@@ -1,8 +1,8 @@
 %%%-------------------------------------------------------------------
-%%% File    : /Users/dfayram/Projects/new_id2/elibs/id2_code_monitor.erl
+%%% File    : /Users/dfayram/Projects/new_fuzed/elibs/fuzed_code_monitor.erl
 %%% Author  : 
 %%%-------------------------------------------------------------------
--module(id2_code_monitor).
+-module(fuzed_code_monitor).
 -behaviour(gen_server).
 
 %% API

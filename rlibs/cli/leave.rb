@@ -1,6 +1,6 @@
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: id2 leave -n NAME"
+  opts.banner = "Usage: fuzed leave -n NAME"
   
   opts.on("-n NAME", "--name NAME", "Node name (hostname will automatically be appended)") do |n|
     options[:name] = n
