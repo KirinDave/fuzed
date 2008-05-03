@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'optparse'
-require 'rpm_interface'
 require 'erlectricity'
 require 'json'
 
@@ -44,31 +43,14 @@ class Chassis
     Chassis.node_kind = name
   end
   
-  # Specify package dependencies for the details list. If this is called
-  # more than once, the first list that contains a full match for installed
-  # packages will be used.
-  #   +names+ is a list of package names (their dependencies will be
-  #           traced automatically)
+  # Specify details that will be used for matching incoming requests
+  #   +details+ is a Hash of primitives
   #
   # Returns nothing
-  def self.packages(*names)
-    return if !Chassis.pkgs.empty?
+  def self.details(details)
+    raise("details() has already been called") unless Chassis.pkgs.empty?
     
-    fully_installed = names.all? do |package|
-      Powerset::PowerPack.installed?(package)
-    end
-    
-    if fully_installed
-      deps = names.inject([]) do |acc, package|
-        acc << package
-        acc.concat Powerset::PowerPack.check(package).package_dependencies
-        acc
-      end
-      
-      packs = Powerset::PowerPack.check_packages(deps.uniq)
-      
-      Chassis.pkgs = packs.compact.map { |p| [p.name, self.limit_version(p.version)] }
-    end
+    Chassis.pkgs = details.to_a
   end
   
   def self.config(&block)
@@ -419,8 +401,7 @@ if $0 == __FILE__
   class Awesome < Chassis
     kind "awesome"
     
-    packages "failboat"
-    packages "powerset_ruby", "tk"
+    details "failboat" => "sinking"
     
     config do
       ["grammar", "/tmp/awesome.lfg"]
@@ -616,10 +597,7 @@ if $0 == __FILE__
     # packages
     
     def test_packages
-      packages = [["powerset_ruby", [1, 8, 5, 9999]],
-                 ["tk", [8, 4, 14, 0]],
-                 ["readline", [5, 1, 4, 0]],
-                 ["tcl", [8, 4, 14, 0]]]
+      packages = [["failboat", "sinking"]]
       assert_equal packages, Chassis.pkgs
     end
     
@@ -650,10 +628,7 @@ if $0 == __FILE__
       ARGV.concat(["--tags=foo,bar", "--roles=production", "--", "--tags=baz,qux"])
       Chassis.pull_cli_args
       
-      config = [["powerset_ruby", [1, 8, 5, 9999]],
-               ["tk", [8, 4, 14, 0]],
-               ["readline", [5, 1, 4, 0]],
-               ["tcl", [8, 4, 14, 0]],
+      config = [["failboat", "sinking"],
                ["tags", "foo", "bar"],
                ["roles", "production"],
                ["kind", "awesome"],
