@@ -9,8 +9,6 @@
 % Supervisor Functions
 
 start() ->
-  application:set_env(kernel, inet_dist_listen_min, 9200),
-  application:set_env(kernel, inet_dist_listen_max, 9299),
   spawn(fun() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, _Arg = [])
   end).
