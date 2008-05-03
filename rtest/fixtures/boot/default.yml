@@ -1,0 +1,12 @@
+---
+  - kind: xle_node.rb
+    xlew: true
+    spec: "--grammar=ball-z||--grammar=tom-is-not-awesome"
+    clone: 2
+    roles: "production"
+  - kind: stemmer
+    spec: "--fs=yourmomma"
+    xlew: false
+    clone: 9999
+    tags: ["chocolate", "rain"]
+    heartbeat: false

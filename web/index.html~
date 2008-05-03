@@ -1,0 +1,182 @@
+<html lang="end">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>Katamari</title>
+    <link rel="stylesheet" href="css/screen.css" type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="css/custom.css" type="text/css" media="screen, projection" />
+    <script type="text/javascript" src="scripts/jsolait.js"></script>
+    <script type="text/javascript">
+      jsolait.baseURI = "scripts/";
+      jsonrpc = imprt("jsonrpc");
+      service = new jsonrpc.ServiceProxy(window.location.href.match(/http:\/\/\S*\//)[0] + "api", ['list_available_configurations']);
+      var configurations = service.list_available_configurations();
+    </script>
+    <script type="text/javascript" src="scripts/mootools.js"></script>
+    <script type="text/javascript">
+    window.addEvent('domready', function() {
+      configurations.each(function(configuration, index){
+        row = index+1;
+        majors = ['kind', 'roles', 'tags', 'nl_runtime_stack', 'grammar', 'fst']
+        
+        others = [];
+        for (key in configuration) {
+          if (majors.contains(key)) {} else {
+            others.merge([key])
+          };
+        };
+
+        tr = new Element('tr', {id: row});
+        if (row % 2 == 0) {
+          tr.addClass('even')
+        } else {
+          tr.addClass('odd')
+        };
+        
+        majors.each(function(key, index){
+          ele = new Element('td', {'class': 'config-info ' + key});
+          if (configuration[key] == undefined) {
+            ele.innerHTML = '(not available)'
+          } else {
+            ele.innerHTML = configuration[key]
+          };
+          if (key == 'kind') {
+            a = new Element('a', {
+              'href': '#',
+              'class': 'more-details',
+              'events': {
+                'click': function(){
+                  $('extended-info').empty();
+                  ul = new Element('ul', {'class': 'config-list'});
+                  others.each(function(key){
+                    ul.adopt(new Element('li', {'class': 'list-item'}).appendText(key + ": " + configuration[key]));
+                  });
+                  $('extended-info').appendChild(ul);
+                }.bind(this)
+              }
+            });
+            a.innerHTML = '+';
+            ele.appendText(' [');
+            ele.appendChild(a);
+            ele.appendText(']');
+          };
+          tr.adopt(ele);
+        });
+
+        $E('tbody', 'config-table').adopt(tr);
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <a id="top"></a>
+    <div class="container">
+      <hr class="space" />
+      <div class="column span-17 append-1">
+        <h1>Katamari Information Panel</h1>
+        <hr />
+        <a id="whatcanitdo"></a>
+        <h3>What can Katamari do?</h3>
+        <ul>
+          <li>Parse sentences into f-structures and semreps</li>
+          <li>Produce semreps for f-structures</li>
+          <li>Run NLMatch on semreps</li>
+          <li>Provide name-tagged sentences using the name_tagger.</li>
+          <li>Provide tokens for sentences.</li>
+          <li>Provide morphemes for sentences.</li>
+        </ul>
+        <p><a href="#top">top</a></p>
+        <hr />
+        <a id="resources"></a>
+        <h3>What are the current resources on the Katamari cluster?</h3>
+        <table border="0" cellspacing="0" cellpadding="0" id="config-table">
+          <thead>
+            <th>Kind</th>
+            <th>Roles</th>
+            <th>Tags</th>
+            <th>NL Runtime Stack</th>
+            <th>Grammar</th>
+            <th>FST</th>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+        <p><a href="#top">top</a></p>
+        <div id="extended-info"></div>
+        <hr />
+        <a id="whatdoineed"></a>
+        <h3>What do I need to install in order to use the Katamari cluster?</h3>
+        <p>In order to use ID2, you simply need to install the package "rubygem_katamari" and allow yum to pull
+        in the dependencies. If you would like to run an ID2 node, please talk to Dave Fayram, Tom Werner, or Abhay Kumar 
+        for assistance setting the stack up.</p>
+        <p><a href="#top">top</a></p>
+        <hr />
+        <a id="examples"></a>
+        <h3>Can you show me some examples of what I can do?</h3>
+        <p>You can test ID2 from an irb instance easily. First start up IRB and require the rubygem_katamari library. Then you can create a tool
+           by using code like the following:</p>
+        <blockquote><pre>
+> t = Powerset::Katamari.new( :host => "http://id2.tools.powerset.com:9001/api", 
+                              :kind => "xle",
+                              :nl_runtime_stack => "1.2.3-4"
+                              :tags => "demo,funtimes",
+                              :roles => "production,unlikely"
+                              :grammar => "query" )
+        </pre></blockquote>
+        <p>You need to make sure to specify a <u>full</u> version for versioned items. Tags are special, in that they allow you to "bias" your search
+           towards nodes that are tagged as you specify, but a mismatch in a tag does not stop the match. Roles are the opposite, every node must match
+           every role uniquely. Roles are typically used to separate production hardware in a mixed-mode environment. 
+           Once you have a configuration you can inspect what methods this version of the service in Katamari generates with the help method:</p>
+        <blockquote><pre>
+> t.help
+client = ::Powerset::Katamari.new(:host => "http://id2.tools.powerset.com:9001/api", :kind => "xle", :grammar => "query", ...)
+client.semrep_for_sentence(:ruleset => "", :sentence => "")
+client.tokens_for_sentence(:sentence => "")
+client.qel(:options => "", :passage => "")
+client.nlmatch_semreps(:semrep1 => "", :semrep2 => "")
+client.semrep_for_fstructure(:fstructure => "", :ruleset => "")
+client.parse_sentence_with_metrics(:rootcat => "", :sentence => "")
+client.parse_sentence(:rootcat => "", :sentence => "")
+client.deep_qel(:parameters => "", :passage => "")
+client.name_tag_sentence(:sentence => "")
+client.rules_from_ruleset(:ruleset => "")
+client.morphemes_for_sentence(:sentence => "")
+client.grammar_info
+        </blockquote></pre>
+        
+        <p>You'll find many methods with specified parameters. These are the <em>required</em> parameters for this method to function. In these XLE nodes, 
+           there are many methods which you might find on an XLETool. Let's try one for an example of the results:
+      
+        <blockquote><pre>
+# Generate a query semrep
+> t.semrep_for_sentence( :sentence => "What happened downtown?", :ruleset => :query )
+=> "\n\n%%Output of preproc_rules fs_sem_rules sem_lex_rules ..."
+
+# Generate QEL
+> t.qel( :passage => "Why did you shoot me?", :options => {} ) # {} means default qel options
+=> {"scoring"=>"...", "selection" => "...", "semrep" => "..."}
+        </pre></blockquote>
+        <p>If you'd like to programmatically probe the system for available configurations, you can use a provided class method like so:</P>
+          <blockquote><pre>
+ > Powerset::Katamari.available_configurations("http://id2.tools.powerset.com:9001/api")
+ => [{"nl_runtime_stack" => "1.9.2-37", ...}, ...]
+          </pre></blockquote>
+        <p>Please note that ID2 is a distributed environment and most resources available are available in parallel. Usually you can safely
+           run 4-5 threads against a given resource without noticing any performance penalties. Also, remember that a if ID2 comes
+           back with a timeout error, this <i>doesn't mean that the query will always fail!</i> XLE resources are finicky and, let's be
+           honest here, sometimes buggy. Make sure to retry requests at least once to be sure that they generate timeout errors.</p> 
+        <p><a href="#top">top</a></p>
+      </div>
+      <div class="column span-6 last">
+        <img src="images/katamari.jpg" />
+        <h4 class="alt">Katamari is <span style="color:darkgreen">running</span>.</h4>
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="#whatcanitdo">What can Katamari do?</a></li>
+          <li><a href="#resources">Current Resources</a></li>
+          <li><a href="#whatdoineed">What do I need?</a></li>
+          <li><a href="#examples">Examples</a></li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

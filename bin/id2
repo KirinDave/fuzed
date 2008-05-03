@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+require 'digest/md5'
+require 'resolv'
+
+if __FILE__ == "/p/bin/id2"
+  $:.unshift(File.join("/p/libexec/erlang/id2/rlibs"))
+  $:.unshift(File.join("/p/libexec/erlang/id2/rlibs/cli"))
+  ID2_ROOT = "/p/libexec/erlang/id2"
+else
+  $:.unshift(File.join(File.dirname(__FILE__), *%w[.. rlibs]))
+  ID2_ROOT = File.join(File.dirname(__FILE__), *%w[..])
+end
+
+CMD_LINE_PATH = File.join(ID2_ROOT, *%w[rlibs cli])
+CMD_LINE_COMMANDS = Dir[CMD_LINE_PATH + "/*.rb"].map { |fname| File.basename(fname).split(".")[0].downcase }
+$:.unshift(CMD_LINE_PATH)
+
+
+DEFAULT_NODE_NAME = `hostname -s`.chomp + "-#{rand(9999)}"
+DEFAULT_MASTER_NODE = "master@id2-dev.powerset.com"
+DEFAULT_REMOTE_RUBY = "http://id2-dev.powerset.com:9001/code"
+DEFAULT_ERLANG_CODEPATHS = %w[ebin/yaws ebin/eunit etest ebin/thrift ebin]
+DEFAULT_BOOT_DIR = "/p/conf/id2/"
+
+def cookie_hash(node)
+  Digest::MD5.hexdigest(node  + "-powerset")
+end
+
+def rel(path)
+  File.join(ID2_ROOT, path)
+end
+
+def code_paths
+  DEFAULT_ERLANG_CODEPATHS.map {|n| "-pz #{rel(n)}" }.join(" ") + " \\"
+end
+
+require 'optparse'
+require 'pp'
+
+command = ARGV[0].downcase
+
+if CMD_LINE_COMMANDS.include? command
+  require command
+else
+  puts "Invalid command! Valid commands for id2 are:\n#{CMD_LINE_COMMANDS.sort.join(", ")}"
+end
