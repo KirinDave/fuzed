@@ -1,0 +1,22 @@
+<form onsubmit="return false;">
+  <%= text_field_tag('date') %>
+</form>
+
+<p id="out">...</p>
+
+<script type="text/javascript">
+  
+new Form.Element.Observer(
+  'date',
+  0.5,
+  function(el, value){
+    new Ajax.Request('/main/chronic/' + value, {
+      method: 'get',
+      onSuccess: function(transport){
+        $('out').innerHTML = transport.responseText;
+      }
+    });
+  }
+)
+
+</script>

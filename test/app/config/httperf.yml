@@ -1,0 +1,6 @@
+--- 
+uris: 
+- /main/go
+samples: 2
+servers: 
+- localhost:8080

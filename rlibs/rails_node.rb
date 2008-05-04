@@ -1,15 +1,21 @@
-# internal
-require 'chassis'
-require 'rails_adapter'
-
 # core
 require 'stringio'
 require 'logger'
 
+# internal
+require 'chassis'
+require 'rails_adapter'
+
 # gems
 require 'rack'
 
-rails_root = '/Users/tom/dev/mojombo/helloworld'
+TESTMODE = false
+
+if TESTMODE
+  rails_root = File.join(File.dirname(__FILE__), *%w[.. test app])
+else
+  rails_root = ARGV[0] || File.join(File.dirname(__FILE__), *%w[.. test app])
+end
 
 require File.join(rails_root, 'config/boot')
 require RAILS_ROOT + "/config/environment"
@@ -142,13 +148,11 @@ class RailsHandler < Chassis
   details("rails" => "default")
 
   handle(:handle_request) do |args|
-    args[:request]
-    
-    $app.call(env)
+    service(args[:request])
   end
 end
 
-if false
+if TESTMODE
   # [[:method, :POST], [:http_version, [1, 1]], [:querypath, "/main/go"], [:querydata, ""], [:servername, "testing:8002"], [:headers, [[:connection, "keep-alive"], [:accept, "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"], [:host, "localhost:8002"], [:referer, "http://localhost:8002/main/ready"], [:user_agent, "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"], [:keep_alive, "300"], [:content_length, "7"], [:content_type, "application/x-www-form-urlencoded"], [:"Cache-Control", "max-age=0"], [:"Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7"], [:"Accept-Encoding", "gzip,deflate"], [:"Accept-Language", "en-us,en;q=0.5"]]], [:cookies, ["_helloworld_session_id=d3eae987aab3230377abc433b7a8d7c1"]], [:pathinfo, "/Users/tom/dev/fuzed/helloworld/public"], [:postdata, "val=foo"]]
   
   req = 

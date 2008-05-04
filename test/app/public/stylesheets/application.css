@@ -1,0 +1,15 @@
+body {
+  margin-top: 100px;
+  text-align: center;
+  background-color: black;
+  color: white;
+  font-size: 400%;
+}
+
+input {
+  background-color: #222;
+  border: 2px solid #888;
+  color: white;
+  font-size: 100%;
+  text-align: center;
+}
