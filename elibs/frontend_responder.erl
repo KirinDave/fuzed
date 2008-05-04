@@ -6,6 +6,7 @@
 
 out404(A, _GC, SC) ->
   Parameters = {struct, parse_arg(A, SC)},
+  io:format("Param restructure:~n~p~n", [Parameters]),
   case node_api:safely_send_call_to_pool(handle_request,
                                          Parameters, 
                                          {handle_request, {request}},

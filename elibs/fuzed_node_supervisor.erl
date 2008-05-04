@@ -1,6 +1,3 @@
-%%%-------------------------------------------------------------------
-%%% Author  : Tom Preston-Werner
-%%%-------------------------------------------------------------------
 -module(fuzed_node_supervisor).
 -behaviour(supervisor).
 -export([start/0, start_shell/0, start_link/1, init/1]).
