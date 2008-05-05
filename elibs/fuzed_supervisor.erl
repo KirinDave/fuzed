@@ -35,5 +35,8 @@ init([]) ->
        permanent, 10000, worker, [pool_sweeper]},
      {fuzed_code_monitor,
        {fuzed_code_monitor, start_link, []},
-       permanent, 10000, worker, [fuzed_code_monitor]}
+       permanent, 10000, worker, [fuzed_code_monitor]},
+     {logger, 
+       {logger, start_link, ["/var/log/fuzed"]},
+       permanent, 10000, worker, [logger]}
     ]}}.

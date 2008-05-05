@@ -1,11 +1,9 @@
 def create_spec_list(options)
   spec_list = []
-  result = ""
-  result.concat("/p/bin/xlew ") if options[:xlew]
-  result.concat("ruby -I/p/libexec/fuzed #{FUZED_ROOT + "/rlibs/pontoon.rb "}")
-  raise "You must specify an fuzed file to join the fuzed cluster!" unless options[:fuzedfile]
+  result = "ruby "
+  result.concat("-I#{FUZED_ROOT + "/rlibs "}")
+  raise "You must specify a fuzed file to join the fuzed cluster!" unless options[:fuzedfile]
   result.concat(options[:fuzedfile] + " ")
-  result.concat(%{#{options[:remote_ruby] || DEFAULT_REMOTE_RUBY} })
   result.concat(%{--tags="#{options[:tags]}" }) if options[:tags]
   roles = []
   roles << "production" if options[:production]
@@ -27,7 +25,6 @@ OptionParser.new do |opts|
   
   opts.on("-z HOSTNAME", "--magic HOSTNAME", "Set smart details based off of a hostname") do |n|
     options[:master_name] = "master@#{n}"
-    options[:remote_ruby] = "http://#{n}:9001/code"
   end
   
   opts.on("-n NAME", "--name NAME", "Node name") do |n|
@@ -54,15 +51,11 @@ OptionParser.new do |opts|
     options[:tags] = n
   end
   
-  opts.on("-x", "--xlew", "Make sure to run the node in the powerset nl environment") do |n|
-    options[:xlew] = true
-  end
-  
   opts.on("-d", "--detached", "Run as a daemon") do
     options[:detached] = true
   end
   
-  opts.on("-p", "--produciton", "Classify these nodes as production") do
+  opts.on("-p", "--production", "Classify these nodes as production") do
     options[:production] = true
   end
   
@@ -72,10 +65,6 @@ OptionParser.new do |opts|
   
   opts.on("-i", "--inet", "Load code over internet via master code server") do
     options[:inet] = true
-  end
-  
-  opts.on("--remote_ruby LOCATION", "Load Ruby code from the given URL or file location") do |x|
-    options[:remote_ruby] = x
   end
 
   opts.on("-h", "--heartbeat", "Start with a heartbeat.") do
@@ -108,8 +97,6 @@ if options[:inet]
 else
   ""
 end
-
-remote_ruby = options[:remote_ruby] || DEFAULT_REMOTE_RUBY
 
 cmd = %Q{erl -boot start_sasl \
              #{detached} \

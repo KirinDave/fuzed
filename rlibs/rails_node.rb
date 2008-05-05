@@ -147,7 +147,7 @@ class RailsHandler < Chassis
 
   details("rails" => "default")
 
-  handle(:handle_request) do |args|
+  handle(:handle_request, :request) do |args|
     service(args[:request])
   end
 end

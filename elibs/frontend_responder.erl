@@ -14,9 +14,10 @@ out404(A, _GC, SC) ->
                                          details()) of
     {result, R} -> 
       convert_response(R);
-    {error, _R} ->
+    {error, R} ->
+      error_logger:info_msg("500 Internal Server Error: ~p~n", [R]),
       [{status, 500}, {html, "Sumpin fucked."}]
-  end.                                                        
+  end.
 
 parse_arg(Request, ServerOptions) ->
   Headers = Request#arg.headers,
@@ -88,5 +89,6 @@ prep(A) -> A.
 
 details() ->
   {ok, Details} = 
-    application:get_env(frontend, details),
+    application:get_env(fuzed_frontend, details),
+  error_logger:info_msg("Using frontend details ~p~n", [Details]),
   Details.

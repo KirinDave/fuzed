@@ -1,3 +1,4 @@
 test/app/log/*.log
 *~
 \#*
+erl_crash.dump
