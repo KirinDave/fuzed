@@ -5,7 +5,7 @@
 -compile(export_all).
 
 out404(A, _GC, SC) ->
-  Parameters = {struct, parse_arg(A, SC)},
+  Parameters = [{method, handle_request}, {request, {struct, parse_arg(A, SC)}}],
   io:format("Param restructure:~n~p~n", [Parameters]),
   case node_api:safely_send_call_to_pool(handle_request,
                                          Parameters, 
@@ -21,15 +21,15 @@ out404(A, _GC, SC) ->
 
 parse_arg(Request, ServerOptions) ->
   Headers = Request#arg.headers,
-  {convert_method(Request), 
+  [convert_method(Request), 
    convert_version(Request), 
    convert_querypath(Request), 
    {querydata, prep(Request#arg.querydata)}, 
    {servername, prep(ServerOptions#sconf.servername)},
    {headers, {struct, convert_headers(Request#arg.headers)}},
-   {cookies, {array, list_to_tuple(lists:map(fun(X) -> prep(X) end, Headers#headers.cookie))}},
+   {cookies, {array, lists:map(fun(X) -> prep(X) end, Headers#headers.cookie)}},
    {pathinfo, prep(ServerOptions#sconf.docroot)},
-   {postdata, Request#arg.clidata}}.
+   {postdata, Request#arg.clidata}].
     
 
 convert_method(Request) ->
@@ -45,7 +45,7 @@ convert_querypath(Request)  ->
 convert_version(Request) ->
   R = Request#arg.req,
   {http_request,_Method,{_Type,_Path},Version} = R,
-  {http_version, Version}.
+  {http_version, {array, tuple_to_list(Version)}}.
 
 convert_req(R) ->
   {http_request,Method,{_Type,Path},_} = R,
@@ -74,9 +74,9 @@ convert_headers(A) ->
   SpecialHeaders = 
     lists:map(fun({http_header, _Len, Name, _, Value}) -> {prep(Name), prep(Value)} end, 
               A#headers.other),
-  list_to_tuple([{Name, Res} || {Name, Res} <- NormalHeaders, Res /= undefined] ++ SpecialHeaders).
+  [{Name, Res} || {Name, Res} <- NormalHeaders, Res /= undefined] ++ SpecialHeaders.
 
-convert_response(EhtmlTuple) ->
+convert_response({response, EhtmlTuple}) ->
   {Status, AllHeaders, Html} = EhtmlTuple,
   {allheaders, HeaderList} = AllHeaders,
   ProcessedHeaderList = lists:map(fun({header, Name, Value}) -> {header, [binary_to_list(Name) ++ ":", binary_to_list(Value)]} end,
