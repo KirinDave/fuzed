@@ -3,10 +3,9 @@
 -include("fuzed.hrl").
 -export([out404/3]).
 
-out404(A, _GC, SC) ->
+out404(Arg, GC, SC) ->
+  {Pool, A} = provide_pool(Arg, GC, SC),
   Parameters = [{request, {struct, parse_arg(A, SC)}}],
-  io:format("Param restructure:~n~p~n", [Parameters]),
-  Pool = provide_pool(A),
   case node_api:safely_send_call_to_pool_no_lookup(handle_request,
                                                    Parameters, 
                                                    pure,

@@ -22,13 +22,14 @@ init([]) ->
   Master = application:get_env(master),
   {ok, DocRoot} = application:get_env(docroot),
   {ok, Port} = application:get_env(port),
+  ResponderModule = figure_responder(),
   case Master of
     {ok, MasterNode} ->
       ping_master(MasterNode);
     undefined ->
       MasterNode = node()
   end,
-  frontend_yaws:setup(Port, DocRoot),
+  frontend_yaws:setup(Port, DocRoot, ResponderModule),
   {ok, {{one_for_one, 10, 600},
         [{master_beater,
           {master_beater, start_link, [MasterNode, ?GLOBAL_TIMEOUT, ?SLEEP_CYCLE]},
@@ -52,3 +53,10 @@ ping_master(Node) ->
       ping_master(Node)
   end.
 
+figure_responder() ->
+  case application:get_env(responder) of
+    {ok, Module} ->
+      Module;
+    undefined -> frontend_responder
+  end.
+      

@@ -3,15 +3,10 @@
 -include("../include/yaws/yaws.hrl").
 
 
-test() -> 
-  ModuleFilePath = code:which(?MODULE),
-  DirPath = filename:dirname(ModuleFilePath),
-  yaws_begin_server(yaws_global_configs(9001, DirPath ++ "/../web")).
+setup(Port, DocRoot, Responder) ->
+  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder)).
 
-setup(Port, DocRoot) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot)).
-
-yaws_global_configs(Port, DocRoot) -> 
+yaws_global_configs(Port, DocRoot, Responder) -> 
   Y = yaws_config:yaws_dir(),
   GC = #gconf{yaws_dir = Y,
               ebin_dir = [],
@@ -31,7 +26,7 @@ yaws_global_configs(Port, DocRoot) ->
               servername = "xle_responder",
               listen = {0,0,0,0},
               docroot = DocRoot, 
-              errormod_404 = frontend_responder,
+              errormod_404 = Responder,
               appmods = []},
   {GC,SC}.
 

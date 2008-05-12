@@ -60,6 +60,10 @@ OptionParser.new do |opts|
     options[:port] = dir
   end
 
+  opts.on("-f", "--frontend-responder MODULE", "Module to use for Pool calculation.") do |mod|
+    options[:module] = mod
+  end
+
   opts.on("-?", "--help", "Display arguments.") do
     puts opts
     exit(0)
@@ -73,6 +77,11 @@ docroot = options[:docroot] || "/tmp"
 spec = options[:spec] || "kind=normal"
 details = details_from_string(spec)
 port = options[:port] || "8080"
+mod = if options[:module]
+        "-fuzed_frontend responder #{options[:module]}"
+      else
+        ""
+      end
 
 if master !~ /@/
   abort "Please specify fully qualified master node name e.g. -m master@fuzed.tools.powerset.com"
@@ -90,6 +99,7 @@ cmd = %Q{erl -boot start_sasl \
              -fuzed_frontend details #{details} \
              -fuzed_frontend docroot '"#{docroot}"' \
              -fuzed_frontend port #{port} \
+             #{mod} \
              -config '#{FUZED_ROOT}/conf/fuzed_base' \
              -run fuzed_frontend start}.squeeze(' ')
 puts cmd
