@@ -4,6 +4,7 @@ LOG = true
 # core
 require 'stringio'
 require 'logger'
+require 'optparse'
 
 # internal
 require 'chassis'
@@ -12,15 +13,16 @@ require 'rails_adapter'
 # gems
 require 'rack'
 
-# get rails root dir
-if TESTMODE
-  rails_root = File.join(File.dirname(__FILE__), *%w[.. test app])
-else
-  rails_root = ARGV[0] || File.join(File.dirname(__FILE__), *%w[.. test app])
+# read command line options
+options = {:rails_root => File.join(File.dirname(__FILE__), *%w[.. test app])}
+opts = OptionParser.new
+opts.on("-r", "--rails-root RAILS_ROOT", String) do |x| 
+  options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) unless TESTMODE
 end
+opts.parse(ARGV)
 
 # load Rails
-require File.join(rails_root, 'config/boot')
+require File.join(options[:rails_root], 'config/boot')
 require RAILS_ROOT + "/config/environment"
 
 # initialize logging info
