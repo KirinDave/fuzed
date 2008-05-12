@@ -4,14 +4,17 @@
 -include("fuzed.hrl").
 -compile(export_all).
 
+provide_pool(_A) ->
+  resource_fountain:best_pool_for_details_match(details()).
+
 out404(A, _GC, SC) ->
-  Parameters = [{method, handle_request}, {request, {struct, parse_arg(A, SC)}}],
+  Parameters = [{request, {struct, parse_arg(A, SC)}}],
   io:format("Param restructure:~n~p~n", [Parameters]),
-  case node_api:safely_send_call_to_pool(handle_request,
-                                         Parameters, 
-                                         {handle_request, {request}},
-                                         pure,
-                                         details()) of
+  Pool = provide_pool(A),
+  case node_api:safely_send_call_to_pool_no_lookup(handle_request,
+                                                   Parameters, 
+                                                   pure,
+                                                   Pool) of
     {result, R} -> 
       convert_response(R);
     {error, R} ->
@@ -90,5 +93,4 @@ prep(A) -> A.
 details() ->
   {ok, Details} = 
     application:get_env(fuzed_frontend, details),
-  error_logger:info_msg("Using frontend details ~p~n", [Details]),
   Details.

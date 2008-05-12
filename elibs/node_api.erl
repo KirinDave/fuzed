@@ -3,7 +3,7 @@
 % Functional calls
 -export([parse_sentence/2, semrep_for_sentence/2, nlmatch_semreps/3, details/1, stop/1, heat/1, morphemes_for_sentence/2,
          api/1, api_signature/1, safely_send_call_to_pool/4, safely_send_call_to_pool/5, send_call/3, send_call/4,
-         heat/2]).
+         heat/2, safely_send_call_to_pool_no_lookup/4]).
 
 -include("fuzed.hrl").
 
@@ -30,14 +30,17 @@ safely_send_call_to_pool(Method, Parameters, ApiSpec, Details) ->
 % Valid retkinds are json and erlang  
 safely_send_call_to_pool(Method, Parameters, ApiSpec, RetType, Details) -> 
   PoolSearch = resource_fountain:pool_for_dispatch(ApiSpec, Details),
+  safely_send_call_to_pool_no_lookup(Method, Parameters, RetType, PoolSearch).
+
+safely_send_call_to_pool_no_lookup(Method, Parameters, RetType, Pool) ->
   Me = self(),
-  case PoolSearch of
-    none -> {error, ?NOPOOL_MSG ++ " in safely_send_call_to_pool."};
+  case Pool of
+    none -> {error, ?NOPOOL_MSG ++ " in safely_send_call_to_pool_with_no_lookup."};
     Pool when is_pid(Pool) ->
       Worker = spawn(fun() -> independent_pool_call(Pool, Method, Parameters, RetType, Me) end),
       receive
         {Worker, result, Result} -> Result
-      after ?GLOBAL_TIMEOUT -> {error, io_lib:format("Request took more than 1 minute. ApiSpec: ~p~nMethod: ~p~nParameters: ~p~n", [ApiSpec, Method, Parameters])}
+      after ?GLOBAL_TIMEOUT -> {error, io_lib:format("Request took more than 1 minute. Method: ~p~nParameters: ~p~n", [Method, Parameters])}
       end
   end.
 
