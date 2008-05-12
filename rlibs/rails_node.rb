@@ -1,3 +1,6 @@
+TESTMODE = false
+LOG = true
+
 # core
 require 'stringio'
 require 'logger'
@@ -9,23 +12,26 @@ require 'rails_adapter'
 # gems
 require 'rack'
 
-TESTMODE = false
-
+# get rails root dir
 if TESTMODE
   rails_root = File.join(File.dirname(__FILE__), *%w[.. test app])
 else
   rails_root = ARGV[0] || File.join(File.dirname(__FILE__), *%w[.. test app])
 end
 
+# load Rails
 require File.join(rails_root, 'config/boot')
 require RAILS_ROOT + "/config/environment"
 
-LOG = true
-
+# initialize logging info
 $total_avg = [0, 0]
 $rails_avg = [0, 0]
 $logger = Logger.new(RAILS_ROOT + "/log/fuzed.#{Process.pid}.log")
 
+# Log the given message
+#   +msg+ is the message to log
+#
+# Returns nothing
 def log(msg)
   $logger << msg + "\n"
 end
@@ -59,7 +65,7 @@ def service(request)
   env = {}
   env['REQUEST_METHOD'] = method.to_s
   env['QUERY_STRING'] = query
-  env["PATH_INFO"] = path == '/' ? '' : path
+  env["PATH_INFO"] = path
   env = headers.inject(env) { |a, x| a[translate[x[0]] || x[0].to_s] = x[1]; a }
   env.delete_if { |k, v| v.nil? }
   
