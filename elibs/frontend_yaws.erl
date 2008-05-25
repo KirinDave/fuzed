@@ -43,8 +43,8 @@ yaws_begin_server({GC,SC}) ->
 % Triples: {Path, module, Role}
 prepare_appmod_data(AppMods) when is_list(AppMods) ->
   lists:foldl(fun({Path, Module, Role}, {AMMM, Opaques}) -> 
-                    {[{Path, Module}|AMMM], 
-                     [{{Path, Module}, [{<<"roles">>, [to_binary(Role)]}]}|Opaques]}
+                    {[{to_string(Path), Module}|AMMM], 
+                     [{{to_string(Path), Module}, [{<<"roles">>, [to_binary(Role)]}]}|Opaques]}
                 end,
                 {[], []},
                 AppMods);
@@ -53,3 +53,7 @@ prepare_appmod_data(_) -> {[], []}.
 to_binary(String) when is_list(String) -> list_to_binary(String);
 to_binary(Atom) when is_atom(Atom) -> to_binary(atom_to_list(Atom));
 to_binary(Binary) when is_binary(Binary) -> Binary.
+
+to_string(Atom) when is_atom(Atom) -> atom_to_list(Atom);
+to_string(Binary) when is_binary(Binary) -> binary_to_list(Binary);
+to_string(String) when is_list(String) -> String.

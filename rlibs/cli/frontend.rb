@@ -64,6 +64,10 @@ OptionParser.new do |opts|
     options[:module] = mod
   end
 
+  opts.on("-a", "--appmod-specs APPMOD_SPECS", "List of triples, {path, module, role}.") do |specs|
+    options[:appmod_specs] = specs
+  end
+
   opts.on("-?", "--help", "Display arguments.") do
     puts opts
     exit(0)
@@ -83,6 +87,12 @@ mod = if options[:module]
         ""
       end
 
+fuzed_appspecs = if options[:appmod_specs]
+                   "-fuzed_frontend appmods '" + options[:appmods] + "'"
+                 else
+                   ""
+                 end
+
 if master !~ /@/
   abort "Please specify fully qualified master node name e.g. -m master@fuzed.tools.powerset.com"
 end
@@ -99,6 +109,7 @@ cmd = %Q{erl -boot start_sasl \
              -fuzed_frontend details #{details} \
              -fuzed_frontend docroot '"#{docroot}"' \
              -fuzed_frontend port #{port} \
+             #{fuzed_appspecs} \
              #{mod} \
              -config '#{FUZED_ROOT}/conf/fuzed_base' \
              -run fuzed_frontend start}.squeeze(' ')
