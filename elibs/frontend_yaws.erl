@@ -4,10 +4,14 @@
 
 
 setup(Port, DocRoot, Responder) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder)).
+  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, [])).
 
-yaws_global_configs(Port, DocRoot, Responder) -> 
+setup(Port, DocRoot, Responder, AppMods) ->
+  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, AppMods)).
+
+yaws_global_configs(Port, DocRoot, Responder, AppMods) -> 
   Y = yaws_config:yaws_dir(),
+  {AppModModules, Opaques} = prepare_appmod_data(AppMods),
   GC = #gconf{yaws_dir = Y,
               ebin_dir = [],
               include_dir = [],
@@ -27,10 +31,25 @@ yaws_global_configs(Port, DocRoot, Responder) ->
               listen = {0,0,0,0},
               docroot = DocRoot, 
               errormod_404 = Responder,
-              appmods = []},
+              appmods = AppModModules,
+              opaque = Opaques},
   {GC,SC}.
 
 yaws_begin_server({GC,SC}) -> 
   application:set_env(yaws, embedded, true),
   application:start(yaws),
   yaws_api:setconf(GC, [[SC]]).
+
+% Triples: {Path, module, Role}
+prepare_appmod_data(AppMods) when is_list(AppMods) ->
+  lists:foldl(fun({Path, Module, Role}, {AMMM, Opaques}) -> 
+                    {[{Path, Module}|AMMM], 
+                     [{{Path, Module}, [{<<"roles">>, [to_binary(Role)]}]}|Opaques]}
+                end,
+                {[], []},
+                AppMods);
+prepare_appmod_data(_) -> {[], []}.
+
+to_binary(String) when is_list(String) -> list_to_binary(String);
+to_binary(Atom) when is_atom(Atom) -> to_binary(atom_to_list(Atom));
+to_binary(Binary) when is_binary(Binary) -> Binary.

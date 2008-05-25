@@ -22,6 +22,7 @@ init([]) ->
   Master = application:get_env(master),
   {ok, DocRoot} = application:get_env(docroot),
   {ok, Port} = application:get_env(port),
+  AppModSpecs = process_appmods(application:get_env(appmods)),
   ResponderModule = figure_responder(),
   case Master of
     {ok, MasterNode} ->
@@ -29,7 +30,7 @@ init([]) ->
     undefined ->
       MasterNode = node()
   end,
-  frontend_yaws:setup(Port, DocRoot, ResponderModule),
+  frontend_yaws:setup(Port, DocRoot, ResponderModule, AppModSpecs),
   {ok, {{one_for_one, 10, 600},
         [{master_beater,
           {master_beater, start_link, [MasterNode, ?GLOBAL_TIMEOUT, ?SLEEP_CYCLE]},
@@ -60,3 +61,5 @@ figure_responder() ->
     undefined -> frontend_responder
   end.
       
+process_appmods(undefined) -> [];
+process_appmods({ok, V}) -> V.

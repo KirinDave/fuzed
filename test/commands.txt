@@ -1,5 +1,5 @@
-bin/fuzed start -n master@volcano.local
+bin/fuzed start -n master@chisai.local
 
-bin/fuzed frontend -z volcano.local -r test/app/public -s 'kind=rails|roles=production' -n f1@volcano.local
+bin/fuzed frontend -z chisai.local -r test/app/public -s 'kind=rails|roles=production' -n f1@chisai.local
 
-bin/fuzed join -z volcano.local -f rlibs/rails_node.rb -n n1@volcano.local -p
+bin/fuzed join -z chisai.local -f rlibs/rails_node.rb -n n1@chisai.local -p
