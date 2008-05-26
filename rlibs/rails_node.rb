@@ -14,12 +14,14 @@ require 'rails_adapter'
 require 'rack'
 
 # read command line options
-options = {:rails_root => File.join(File.dirname(__FILE__), *%w[.. test app])}
+options = {}
 opts = OptionParser.new
 opts.on("-r", "--rails-root RAILS_ROOT", String) do |x| 
-  options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) unless TESTMODE
+  options[:rails_root] = x
 end
 opts.parse(ARGV)
+
+options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) if TESTMODE
 
 # load Rails
 require File.join(options[:rails_root], 'config/boot')
