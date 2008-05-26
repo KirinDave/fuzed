@@ -27,7 +27,7 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods) ->
               id = genericID
              },
   SC = #sconf{port = Port,
-              servername = "xle_responder",
+              servername = "frontend_responder",
               listen = {0,0,0,0},
               docroot = DocRoot, 
               errormod_404 = Responder,
