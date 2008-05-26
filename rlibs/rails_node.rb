@@ -47,7 +47,6 @@ def service(request)
   headers = request[:headers]
   cookies = request[:cookies]
   postdata = request[:postdata] == :undefined ? '' : request[:postdata]
-  postdata ||= ''
           
   translate = {:content_type => 'CONTENT_TYPE',
                :content_length => 'CONTENT_LENGTH',
@@ -100,10 +99,6 @@ def service(request)
   begin
     t1 = Time.now
     
-    # status = '200'
-    # headers = {}
-    # body = ['foo']
-    
     status, headers, body = $app.call(env)
     
     rails_delta = Time.now - t1
@@ -120,10 +115,7 @@ def service(request)
     headers['Connection'] = 'close'
     
     cookies = headers.delete('cookie')
-    #cookies.map! {|c| c.include?('path=') ? c : c + "; path=/"}
     headers['Set-Cookie'] = cookies if cookies
-    
-    # p headers
     
     status = (headers["Status"].split(" ").first rescue nil) || status
     headers.delete("Status") if headers["Status"]
@@ -157,9 +149,7 @@ class RailsHandler < Chassis
   end
 end
 
-if TESTMODE
-  # [[:method, :POST], [:http_version, [1, 1]], [:querypath, "/main/go"], [:querydata, ""], [:servername, "testing:8002"], [:headers, [[:connection, "keep-alive"], [:accept, "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"], [:host, "localhost:8002"], [:referer, "http://localhost:8002/main/ready"], [:user_agent, "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"], [:keep_alive, "300"], [:content_length, "7"], [:content_type, "application/x-www-form-urlencoded"], [:"Cache-Control", "max-age=0"], [:"Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7"], [:"Accept-Encoding", "gzip,deflate"], [:"Accept-Language", "en-us,en;q=0.5"]]], [:cookies, ["_helloworld_session_id=d3eae987aab3230377abc433b7a8d7c1"]], [:pathinfo, "/Users/tom/dev/fuzed/helloworld/public"], [:postdata, "val=foo"]]
-  
+if TESTMODE  
   req = 
   {:method => :POST, 
    :http_version => [1, 1], 
@@ -182,10 +172,6 @@ if TESTMODE
    :pathinfo => "/Users/tom/dev/fuzed/helloworld/public",
    :postdata => "val=foo"}
   
-  # [[:method, :GET], [:http_version, [1, 1]], [:querypath, "/main/say"], [:querydata, ""], [:servername, "testing:8002"], [:headers, [[:connection, "keep-alive"], [:accept, "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"], [:host, "localhost:8002"], [:user_agent, "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"], [:keep_alive, "300"], [:"Cache-Control", "max-age=0"], [:"Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7"], [:"Accept-Encoding", "gzip,deflate"], [:"Accept-Language", "en-us,en;q=0.5"]]], [:cookies, ["_helloworld_session_id=166098a3c3f702698d0529c6148c6164"]], [:pathinfo, "/Users/tom/dev/fuzed/helloworld/public"], [:postdata, :undefined]]
-
-  p service(req)
-  p service(req)
   p service(req)
   exit!
 end
