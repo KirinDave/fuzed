@@ -49,6 +49,7 @@ def service(request)
   headers = request[:headers]
   cookies = request[:cookies]
   postdata = request[:postdata] == :undefined ? '' : request[:postdata]
+  postdata ||= ''
           
   translate = {:content_type => 'CONTENT_TYPE',
                :content_length => 'CONTENT_LENGTH',
@@ -152,8 +153,6 @@ end
       
 class RailsHandler < Chassis
   kind "rails"
-
-  details("rails" => "default")
 
   handle(:handle_request, :request) do |args|
     service(args[:request])
