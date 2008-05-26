@@ -23,14 +23,10 @@ opts.parse(ARGV)
 
 options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) if TESTMODE
 
-# load Rails
-require File.join(options[:rails_root], 'config/boot')
-require RAILS_ROOT + "/config/environment"
-
 # initialize logging info
 $total_avg = [0, 0]
 $rails_avg = [0, 0]
-$logger = Logger.new(RAILS_ROOT + "/log/fuzed.#{Process.pid}.log")
+$logger = Logger.new(options[:rails_root] + "/log/fuzed.#{Process.pid}.log")
 
 # Log the given message
 #   +msg+ is the message to log
@@ -40,7 +36,7 @@ def log(msg)
   $logger << msg + "\n"
 end
 
-$app = Rack::Adapter::Rails.new(:root => RAILS_ROOT)
+$app = Rack::Adapter::Rails.new(:root => options[:rails_root])
 
 def service(request)
   method = request[:method]
