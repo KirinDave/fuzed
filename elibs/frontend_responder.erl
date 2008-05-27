@@ -11,12 +11,17 @@ provide_pool(A, _GC, _SC) ->
       Pool = lookup_and_cache_pool(),
       {Pool, A};
     {ok, Pool} ->
-      case is_remote_process_alive(Pool) of
-        true ->
-          {Pool, A};
-        false -> 
-          {lookup_and_cache_pool(), A}
-      end
+      case Pool of
+        none ->
+          {none, A};
+        _ when is_pid(Pool) ->
+                 case is_remote_process_alive(Pool) of
+                   true ->
+                     {Pool, A};
+                   false -> 
+                     {lookup_and_cache_pool(), A}
+                 end
+             end
   end.
 
 lookup_and_cache_pool() ->
