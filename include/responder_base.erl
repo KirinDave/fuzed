@@ -3,6 +3,9 @@
 -include("fuzed.hrl").
 -export([out404/3]).
 
+out(Arg, GC, SC) ->
+  out404(Arg, GC, SC).
+
 out404(Arg, GC, SC) ->
   {Pool, A} = provide_pool(Arg, GC, SC),
   Parameters = [{request, {struct, parse_arg(A, SC)}}],
