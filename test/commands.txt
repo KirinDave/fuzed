@@ -1,5 +1,20 @@
+tom
+---
+
+bin/fuzed start -n master@volcano.local
+
+bin/fuzed frontend -z volcano.local -r test/app/public -s 'kind=rails' -n f1@volcano.local
+
+bin/fuzed rails -z volcano.local --rails-root=test/app -n n1@volcano.local
+
+
+
+
+dave
+----
+
 bin/fuzed start -n master@chisai.local
 
-bin/fuzed frontend -z chisai.local -r test/app/public -s 'kind=rails|roles=production' -n f1@chisai.local
+bin/fuzed frontend -z chisai.local -r test/app/public -s 'kind=rails' -n f1@chisai.local
 
-bin/fuzed join -z chisai.local -f rlibs/rails_node.rb -n n1@chisai.local -p
+bin/fuzed rails -z chisai.local --rails-root=test/app -n n1@chisai.local

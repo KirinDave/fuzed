@@ -24,7 +24,7 @@ yaws_global_configs(Port, DocRoot) ->
     id = genericID
   },
   SC = #sconf{port = Port,
-              servername = "xle_responder",
+              servername = "json_responder",
               listen = {0,0,0,0},
               docroot = DocRoot, 
               appmods = [{"api", generic_json_responder},

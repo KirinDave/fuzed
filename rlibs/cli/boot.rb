@@ -16,7 +16,6 @@ end
 def client_spec_2_cmdline(yml_spec, autoconf)
   yml_spec = finish_spec(yml_spec, autoconf)
   cmd_set = ["fuzed join -d"]
-  cmd_set << "-x" if yml_spec["xlew"]
   cmd_set << "-n '" + yml_spec["name"] + "'"
   cmd_set << "-f " + yml_spec["kind"]
   cmd_set << "-t '" + [yml_spec["tags"]].flatten.join(",") + "'" if yml_spec["tags"]

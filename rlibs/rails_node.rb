@@ -14,21 +14,19 @@ require 'rails_adapter'
 require 'rack'
 
 # read command line options
-options = {:rails_root => File.join(File.dirname(__FILE__), *%w[.. test app])}
+options = {}
 opts = OptionParser.new
 opts.on("-r", "--rails-root RAILS_ROOT", String) do |x| 
-  options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) unless TESTMODE
+  options[:rails_root] = x
 end
 opts.parse(ARGV)
 
-# load Rails
-require File.join(options[:rails_root], 'config/boot')
-require RAILS_ROOT + "/config/environment"
+options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) if TESTMODE
 
 # initialize logging info
 $total_avg = [0, 0]
 $rails_avg = [0, 0]
-$logger = Logger.new(RAILS_ROOT + "/log/fuzed.#{Process.pid}.log")
+$logger = Logger.new(options[:rails_root] + "/log/fuzed.#{Process.pid}.log")
 
 # Log the given message
 #   +msg+ is the message to log
@@ -38,7 +36,7 @@ def log(msg)
   $logger << msg + "\n"
 end
 
-$app = Rack::Adapter::Rails.new(:root => RAILS_ROOT)
+$app = Rack::Adapter::Rails.new(:root => options[:rails_root])
 
 def service(request)
   method = request[:method]
@@ -101,10 +99,6 @@ def service(request)
   begin
     t1 = Time.now
     
-    # status = '200'
-    # headers = {}
-    # body = ['foo']
-    
     status, headers, body = $app.call(env)
     
     rails_delta = Time.now - t1
@@ -121,10 +115,7 @@ def service(request)
     headers['Connection'] = 'close'
     
     cookies = headers.delete('cookie')
-    #cookies.map! {|c| c.include?('path=') ? c : c + "; path=/"}
     headers['Set-Cookie'] = cookies if cookies
-    
-    # p headers
     
     status = (headers["Status"].split(" ").first rescue nil) || status
     headers.delete("Status") if headers["Status"]
@@ -153,16 +144,12 @@ end
 class RailsHandler < Chassis
   kind "rails"
 
-  details("rails" => "default")
-
   handle(:handle_request, :request) do |args|
     service(args[:request])
   end
 end
 
-if TESTMODE
-  # [[:method, :POST], [:http_version, [1, 1]], [:querypath, "/main/go"], [:querydata, ""], [:servername, "testing:8002"], [:headers, [[:connection, "keep-alive"], [:accept, "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"], [:host, "localhost:8002"], [:referer, "http://localhost:8002/main/ready"], [:user_agent, "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"], [:keep_alive, "300"], [:content_length, "7"], [:content_type, "application/x-www-form-urlencoded"], [:"Cache-Control", "max-age=0"], [:"Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7"], [:"Accept-Encoding", "gzip,deflate"], [:"Accept-Language", "en-us,en;q=0.5"]]], [:cookies, ["_helloworld_session_id=d3eae987aab3230377abc433b7a8d7c1"]], [:pathinfo, "/Users/tom/dev/fuzed/helloworld/public"], [:postdata, "val=foo"]]
-  
+if TESTMODE  
   req = 
   {:method => :POST, 
    :http_version => [1, 1], 
@@ -185,10 +172,6 @@ if TESTMODE
    :pathinfo => "/Users/tom/dev/fuzed/helloworld/public",
    :postdata => "val=foo"}
   
-  # [[:method, :GET], [:http_version, [1, 1]], [:querypath, "/main/say"], [:querydata, ""], [:servername, "testing:8002"], [:headers, [[:connection, "keep-alive"], [:accept, "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"], [:host, "localhost:8002"], [:user_agent, "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"], [:keep_alive, "300"], [:"Cache-Control", "max-age=0"], [:"Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7"], [:"Accept-Encoding", "gzip,deflate"], [:"Accept-Language", "en-us,en;q=0.5"]]], [:cookies, ["_helloworld_session_id=166098a3c3f702698d0529c6148c6164"]], [:pathinfo, "/Users/tom/dev/fuzed/helloworld/public"], [:postdata, :undefined]]
-
-  p service(req)
-  p service(req)
   p service(req)
   exit!
 end

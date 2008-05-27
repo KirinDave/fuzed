@@ -2,8 +2,8 @@
 # port: 9001
 # host: localhost
 # specs: 
-# - xle/2
-# - powermouse/4
+# - foo/2
+# - bar/4
 
 require 'net/http'
 require 'yaml'
