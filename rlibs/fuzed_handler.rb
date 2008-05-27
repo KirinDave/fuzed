@@ -28,26 +28,29 @@ module Rack
       end
       
       def service(request)
-        method = request[:method]
-        version = request[:http_version] # => e.g. [1, 1]
-        path = request[:querypath]
-        query = request[:querydata] == :undefined ? '' : request[:querydata]
-        server = request[:servername]
-        headers = request[:headers]
-        cookies = request[:cookies]
-        postdata = request[:postdata] == :undefined ? '' : request[:postdata]
+        log('------------RAW IN------------') if LOG
+        log(request.inspect) if LOG
+        
+        method = request['method']
+        version = request['http_version'] # => e.g. [1, 1]
+        path = request['querypath']
+        query = request['querydata'] == :undefined ? '' : request['querydata']
+        server = request['servername']
+        headers = request['headers']
+        cookies = request['cookies']
+        postdata = request['postdata'] == :undefined ? '' : request['postdata']
           
-        translate = {:content_type => 'CONTENT_TYPE',
-                     :content_length => 'CONTENT_LENGTH',
-                     :accept => 'HTTP_ACCEPT',
-                     :'Accept-Charset' => 'HTTP_ACCEPT_CHARSET',
-                     :'Accept-Encoding' => 'HTTP_ACCEPT_ENCODING',
-                     :'Accept-Language' => 'HTTP_ACCEPT_LANGUAGE',
-                     :connection => 'HTTP_CONNECTION',
-                     :keep_alive => 'HTTP_KEEP_ALIVE',
-                     :host => 'HTTP_HOST',
-                     :referer => 'HTTP_REFERER',
-                     :user_agent => 'HTTP_USER_AGENT',
+        translate = {'content_type' => 'CONTENT_TYPE',
+                     'content_length' => 'CONTENT_LENGTH',
+                     'accept' => 'HTTP_ACCEPT',
+                     'Accept-Charset' => 'HTTP_ACCEPT_CHARSET',
+                     'Accept-Encoding' => 'HTTP_ACCEPT_ENCODING',
+                     'Accept-Language' => 'HTTP_ACCEPT_LANGUAGE',
+                     'connection' => 'HTTP_CONNECTION',
+                     'keep_alive' => 'HTTP_KEEP_ALIVE',
+                     'host' => 'HTTP_HOST',
+                     'referer' => 'HTTP_REFERER',
+                     'user_agent' => 'HTTP_USER_AGENT',
                      'X-Prototype-Version' => 'HTTP_X_PROTOTYPE_VERSION',
                      'X-Requested-With' => 'HTTP_X_REQUESTED_WITH'}
                
