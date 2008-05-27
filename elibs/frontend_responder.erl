@@ -21,8 +21,14 @@ provide_pool(A, _GC, _SC) ->
 
 lookup_and_cache_pool() ->
   Pool = resource_fountain:best_pool_for_details_match(details()),
-  application:set_env(fuzed_frontend, current_pool, Pool),
-  Pool.
+  case Pool of
+    none -> 
+      application:set_env(fuzed_frontend, current_pool, undefined),
+      none;
+    X ->
+      application:set_env(fuzed_frontend, current_pool, X),
+      X
+  end.
 
 is_remote_process_alive(Pid) ->
   Node = node(Pid),
