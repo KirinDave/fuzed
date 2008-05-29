@@ -9,9 +9,10 @@ setup(Port, DocRoot, Responder) ->
 setup(Port, DocRoot, Responder, AppMods) ->
   yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, AppMods)).
 
-yaws_global_configs(Port, DocRoot, Responder, AppMods) -> 
+yaws_global_configs(Port, DocRoot, Responder, AppMods) ->
   Y = yaws_config:yaws_dir(),
   {AppModModules, Opaques} = prepare_appmod_data(AppMods),
+  io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
   GC = #gconf{yaws_dir = Y,
               ebin_dir = [],
               include_dir = [],

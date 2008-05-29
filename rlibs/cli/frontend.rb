@@ -88,7 +88,7 @@ mod = if options[:module]
       end
 
 fuzed_appspecs = if options[:appmod_specs]
-                   "-fuzed_frontend appmods '" + options[:appmods] + "'"
+                   "-fuzed_frontend appmods '" + options[:appmod_specs] + "'"
                  else
                    ""
                  end

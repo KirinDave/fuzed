@@ -8,7 +8,12 @@ out(Arg, GC, SC) ->
 
 out404(Arg, GC, SC) ->
   {Pool, A} = provide_pool(Arg, GC, SC),
-  Parameters = [{request, {struct, parse_arg(A, SC)}}],
+  process_request(Pool, A, GC, SC).
+
+process_request(none, _Arg, _GC, _SC) ->
+  [{status, 503}, {html, "No pool to fufill request!"}];
+process_request(Pool, Arg, _GC, SC) ->
+  Parameters = [{request, {struct, parse_arg(Arg, SC)}}],
   case node_api:safely_send_call_to_pool_no_lookup(handle_request,
                                                    Parameters, 
                                                    pure,
@@ -17,7 +22,7 @@ out404(Arg, GC, SC) ->
       convert_response(R);
     {error, R} ->
       error_logger:info_msg("500 Internal Server Error: ~p~n", [R]),
-      [{status, 500}, {html, "Sumpin fucked."}]
+      [{status, 500}, {html, "Internal Server Error due to failed response."}]
   end.
 
 parse_arg(Request, ServerOptions) ->
