@@ -250,13 +250,10 @@ insert_matching_node_once(Node, State) ->
       State
   end.
 
-% TODO: Is there a less ugly way to write this function?
-insert_node_unless_member(X, []) -> [X];
 insert_node_unless_member(X, List) when is_list(List) -> 
-  Membership = not lists:member(X, List),
-  if
-    Membership -> 
-      [X|List];
-    true -> 
-      List
+  case lists:member(X, List) of
+    true ->
+      List;
+    false -> 
+      [X|List]
   end.
