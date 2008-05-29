@@ -9,9 +9,8 @@ out(Arg) ->
 
 details_for_arg(Arg) ->
   Opaque = Arg#arg.opaque,
-  Key = {lists:filter(fun(Char) -> Char =/= $/ end, Arg#arg.appmod_prepath),
+  Key = {lists:filter(fun(Char) -> Char =/= $/ end, Arg#arg.server_path),
          ?MODULE},
-  io:format("DEBUG: ~p~n", [lists:keysearch(Key, 1, Opaque)]),
   case lists:keysearch(Key, 1, Opaque) of
     false ->
       [] ;
