@@ -8,14 +8,16 @@ require 'optparse'
 class FakeHandler < Chassis
   kind "fake"
 
-  packages "powerset_ruby"
-
   handle(:echo, :textsy, :options) do |args|
     "You said: " + args[:textsy] + ' ' + args[:options].inspect
   end
   
   handle(:killer) do |args|
     exit
+  end
+
+  handle(:woot) do |args|
+    "Boots are delightful."
   end
   
   handle(:mangler) do |args|

@@ -1,5 +1,5 @@
 -module(api_responder).
--export([out/1, rpc_response_point/2]).
+-export([out/1, rpc_response_point/2, rpc_response_point/3]).
 -include("yaws_api.hrl").
 
 out(Arg) ->
@@ -18,10 +18,15 @@ details_for_arg(Arg) ->
       V
   end.
 
+rpc_response_point(_State, {call, Method, Value} = _Request, _Session) -> 
+  Result = rpc_response_point(Method,Value),
+  {true, 0, hello, Result}.
 rpc_response_point(Method, TupleList) ->
-  {_, Details} = get(details),
+  Details = get(details),
   Parameters = TupleList,
   ApiSpec = build_api_spec(Method,Parameters),
+  io:format( "Request prepped:~nDetails: ~p~nApiSpec: ~p~nParameters: ~p~n", 
+             [Details, ApiSpec, Parameters] ),
   case node_api:safely_send_call_to_pool(Method, Parameters, ApiSpec, json, Details) of
     {result, R} -> {result, R};
     {error, R}  -> response_error_logger:log_error(

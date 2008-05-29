@@ -15,6 +15,9 @@ dave
 
 bin/fuzed start -n master@chisai.local
 
-bin/fuzed frontend -z chisai.local -r test/app/public -s 'kind=rails' -n f1@chisai.local
+bin/fuzed frontend -z chisai.local -r test/app/public -s 'kind=rails' -n f1@chisai.local 
+                   -a '[{"api", api_responder, fake}]'
 
 bin/fuzed rails -z chisai.local --rails-root=test/app -n n1@chisai.local
+
+curl -d '{"method":"woot", "params":{}}' http://localhost:8080/api 
