@@ -1,4 +1,4 @@
--define(GLOBAL_TIMEOUT, 60000).
+-define(GLOBAL_TIMEOUT, 10000).
 -define(HEAT_DURATION, 90000).
 -define(SLEEP_CYCLE, 5000).
 -define(NOPOOL_MSG, "There is no pool to field your request. You are in a maze of twisty little passages, all alike.").
