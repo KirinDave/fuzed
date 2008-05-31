@@ -78,8 +78,3 @@ $ bin/fuzed rails -z volcano.local --rails-root=test/app -n n1@volcano.local
 Once again -z specifies the master hostname. --rails-root must point to the Rails root of your app. -n names the node.
 
 At this point, if all is well, you will have a fully assembled and operational Rails cluster!
-
-
-== Advanced Rails clustering
-
-Once you've had a chance to become comfortable with a single machine
