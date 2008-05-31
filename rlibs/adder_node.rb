@@ -2,6 +2,7 @@ require 'chassis'
 require 'rubygems'
 require 'erlectricity'
 require 'optparse'
+require 'stringio'
 
 
 # speller handler
