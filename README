@@ -35,6 +35,9 @@ $ rake
 
 You should not see any error messages if the build was successful.
 
+IMPORTANT: Create a directory named .fuzed in your home directory. YAWS
+requires this in order to start.
+
 
 == Setting up a simple Rails cluster on a single machine
 
