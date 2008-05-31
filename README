@@ -1,0 +1,82 @@
+fuzed
+    by Dave Fayram, Tom Preston-Werner, Abhay Kumar
+    fuzed.rubyforge.org
+
+
+== Summary
+
+Fuzed makes scaling fun! 
+
+
+== Dependencies
+
+* Erlang: http://www.erlang.org (>= 5.6.1)
+* Ruby: http://www.ruby-lang.org (>= 1.8.6)
+* Ruby Gems: 
+  * rake: http://rake.rubyforge.org (>= 0.8.1)
+  * erlectricity: http://github.com/mojombo/erlectricity (>= 0.2.1)
+  * rack: http://rack.rubyforge.org (>= 0.3.0)
+
+
+== Installation
+
+Fuzed is currently only available as a source distribution. A gem will be made
+available shortly.
+
+First, clone the source repo from GitHub. The following command will clone the
+repo into a directory named 'fuzed' within your current working directory.
+
+$ git clone git://github.com/KirinDave/fuzed.git
+
+Move into the 'fuzed' directory and run 'rake' to build fuzed.
+
+$ cd fuzed
+$ rake
+
+You should not see any error messages if the build was successful.
+
+
+== Setting up a simple Rails cluster on a single machine
+
+Every cluster starts with a 'master' node. From the fuzed root directory, run
+the following to start a master. The command will drop you into interactive
+mode for the Erlang runtime. It's best to work this way while you familiarize
+yourself with the system as it will be easier to see any error messages that
+reported.
+
+$ bin/fuzed start -n master@volcano.local
+
+Replace 'volcano.local' with your hostname. Note: 'localhost' will not work
+here, it must be an externally addressable hostname. It's best to always name your master node 'master'. It makes setting up frontend and backend nodes much easier.
+
+Next, start and attach a Rails 'frontend' node. This will bind to a TCP port (default 8080) and serve static assets as well as direct dynamic requests to your Rails node.
+
+bin/fuzed frontend -z volcano.local -r test/app/public -s 'kind=rails' \
+  -n f8080@volcano.local
+
+Let's break this command down so you understand what each option specifies. -z
+denotes the hostname of the master (must match what you used in your `fuzed
+start` command. -r specifies the document root for static assets. -s specifies
+a details list that will select the proper backend node. For a simple cluster,
+leave this alone. -n names the node. Every node that joins a cluster must be
+uniquely named. Here I've named it after the port that will be bound. Because
+this is a single machine cluster, I use the same hostname as the master. In a
+multi-machine setup, you will specify the hostname of the machine that is
+running the node.
+
+You should now be able to request a static asset from your cluster. Try requesting:
+
+http://localhost:8080/rails.png
+
+Now we'll need a 'rails' node to serve dynamic requests. The following command will start a single Rails node.
+
+$ bin/fuzed rails -z volcano.local --rails-root=test/app -n n1@volcano.local
+
+Once again -z specifies the master hostname. --rails-root must point to the Rails root of your app. -n names the node.
+
+At this point, if all is well, you will have a fully assembled and operational Rails cluster!
+
+
+== Advanced Rails clustering
+
+Once you've had a chance to become comfortable with a single machine
