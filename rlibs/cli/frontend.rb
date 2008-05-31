@@ -70,7 +70,7 @@ OptionParser.new do |opts|
 
   opts.on("-j", "--json-api ROLE", "A role to bind to a json-rpc /api") do |role|
     raise "Don't mix -a and -j!" unless options[:appmod_specs].nil?
-    options[:appmod_specs] = "'[{" + %["api",api_responder,#{role.to_s}] + "}]'"
+    options[:appmod_specs] = "[{" + %["api",api_responder,#{role.to_s}] + "}]"
   end
 
   opts.on("-?", "--help", "Display arguments.") do
