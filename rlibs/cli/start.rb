@@ -1,3 +1,5 @@
+require 'fileutils'
+
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed start [options]"
@@ -23,6 +25,10 @@ nodename = options[:name] || DEFAULT_MASTER_NODE
 if nodename !~ /@/
   abort "Please specify fully qualified node name e.g. -n master@fuzed.tools.powerset.com"
 end
+
+# This is obnoxious, but needs to happen for yaws.
+dotyaws = ENV["HOME"] + "/.yaws/"
+FileUtils.mkdir(dotyaws) unless File.exists?(dotyaws)
 
 cmd = %Q{erl -boot start_sasl \
              #{detached} \
