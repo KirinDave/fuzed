@@ -30,7 +30,7 @@ init([]) ->
     undefined ->
       MasterNode = node()
   end,
-  frontend_yaws:setup(Port, DocRoot, ResponderModule, AppModSpecs),
+  frontend_server:start({0,0,0,0}, Port, DocRoot, ResponderModule, AppModSpecs),
   {ok, {{one_for_one, 10, 600},
         [{master_beater,
           {master_beater, start_link, [MasterNode, ?GLOBAL_TIMEOUT, ?SLEEP_CYCLE]},
@@ -39,7 +39,6 @@ init([]) ->
           worker,
           [master_beater]}
         ]}}.
-  
 
 % Helper functions
 
@@ -58,7 +57,7 @@ figure_responder() ->
   case application:get_env(responder) of
     {ok, Module} ->
       Module;
-    undefined -> frontend_responder
+    undefined -> rack_responder
   end.
       
 process_appmods(undefined) -> [];
