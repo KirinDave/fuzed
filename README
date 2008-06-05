@@ -28,9 +28,6 @@ to see exactly how it is used internally.
   * rake: http://rake.rubyforge.org (>= 0.8.1)
   * rack: http://rack.rubyforge.org (>= 0.3.0)
   * erlectricity: http://github.com/mojombo/erlectricity (>= 0.2.1)
-    - ERLECTRICITY MUST BE INSTALLED FROM GITHUB!
-      THE VERSION ON RUBYFORGE IS BUGGY!
-
 
 == Installation
 
