@@ -1,6 +1,14 @@
 -module(api_responder).
 -export([out/1, rpc_response_point/2, rpc_response_point/3]).
+-export([mochiweb_handler/2, mochiweb_rpc_response/2]).
 -include("yaws_api.hrl").
+
+mochiweb_handler(Req, Details) ->
+  put(details, Details),
+  mochiweb_rpc:handler(Req, {?MODULE, mochiweb_rpc_response}).
+
+mochiweb_rpc_response(_Req, {call, Method, {struct, TupleList}}) ->
+  rpc_response_point(Method, TupleList).
 
 out(Arg) ->
   put(details, details_for_arg(Arg)), % Into the process dictionary we go. State rules!

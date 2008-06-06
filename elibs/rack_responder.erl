@@ -2,17 +2,17 @@
 
 -module(rack_responder).
 -author("Abhay Kumar <abhay@opensynapse.net>").
--export([handler/2]).
+-export([mochiweb_handler/3]).
 
 -include_lib("kernel/include/file.hrl").
 
-handler(Req, DocRoot) ->
-  try handle_static(Req, DocRoot)
+mochiweb_handler(Req, DocRoot, _Details) ->
+  try mochiweb_handle_static(Req, DocRoot)
   catch
-    error:non_static -> handle_non_static(Req, DocRoot)
+    error:non_static -> mochiweb_handle_non_static(Req, DocRoot)
   end.
 
-handle_static(Req, DocRoot) ->
+mochiweb_handle_static(Req, DocRoot) ->
   "/" ++ Path = Req:get(path),
   case mochiweb_util:safe_relative_path(Path) of
     undefined -> erlang:error(non_static);
@@ -41,7 +41,7 @@ handle_static(Req, DocRoot) ->
       end
   end.
 
-handle_non_static(Req, DocRoot) ->
+mochiweb_handle_non_static(Req, DocRoot) ->
   case resource_fountain:best_pool_for_details_match(get_details()) of
     none -> Req:respond({503, [], "No pool to fufill request!"});
     Pool ->
