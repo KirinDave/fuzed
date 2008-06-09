@@ -55,6 +55,14 @@ OptionParser.new do |opts|
     options[:docroot] = dir
     raise "No such directory for docroot!" unless File.directory?(dir)
   end
+  
+  opts.on("--ssl-key KEY", "SSL key file.") do |key|
+    options[:ssl_key] = key
+  end
+  
+  opts.on("--ssl-cert CERT", "SSL cert file.") do |cert|
+    options[:ssl_cert] = cert
+  end
 
   opts.on("-p", "--port PORT", "Port for web server.") do |dir|
     options[:port] = dir
@@ -102,6 +110,12 @@ if master !~ /@/
   abort "Please specify fully qualified master node name e.g. -m master@fuzed.tools.powerset.com"
 end
 
+ssl_details = ''
+if options[:ssl_key] && options[:ssl_cert]
+  ssl_details << %Q{-fuzed_frontend ssl_key '"#{options[:ssl_key]}"' }
+  ssl_details << %Q{-fuzed_frontend ssl_cert '"#{options[:ssl_cert]}"' }
+end
+
 cmd = %Q{erl -boot start_sasl \
              #{detached} \
              +Bc \
@@ -113,6 +127,7 @@ cmd = %Q{erl -boot start_sasl \
              -fuzed_frontend master "'#{master}'" \
              -fuzed_frontend details #{details} \
              -fuzed_frontend docroot '"#{docroot}"' \
+             #{ssl_details} \
              -fuzed_frontend port #{port} \
              #{fuzed_appspecs} \
              #{mod} \

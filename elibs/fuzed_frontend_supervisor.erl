@@ -30,7 +30,8 @@ init([]) ->
     undefined ->
       MasterNode = node()
   end,
-  frontend_yaws:setup(Port, DocRoot, ResponderModule, AppModSpecs),
+  SSL = ssl_config(),
+  frontend_yaws:setup(Port, DocRoot, ResponderModule, AppModSpecs, SSL),
   {ok, {{one_for_one, 10, 600},
         [{master_beater,
           {master_beater, start_link, [MasterNode, ?GLOBAL_TIMEOUT, ?SLEEP_CYCLE]},
@@ -41,6 +42,21 @@ init([]) ->
         ]}}.
   
 
+ssl_config() ->
+  case application:get_env(ssl_key) of
+    {ok, Key} -> ok;
+    undefined -> Key = undefined
+  end,
+  case application:get_env(ssl_cert) of
+    {ok, Cert} -> ok;
+    undefined -> Cert = undefined
+  end,
+  case {Key, Cert} of
+    {undefined, _Any1} -> none;
+    {_Any2, undefined} -> none;
+    _Else -> {ssl, Key, Cert}
+  end.
+  
 % Helper functions
 
 ping_master(Node) -> 

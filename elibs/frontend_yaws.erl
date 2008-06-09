@@ -4,12 +4,12 @@
 
 
 setup(Port, DocRoot, Responder) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, [])).
+  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, [], none)).
 
-setup(Port, DocRoot, Responder, AppMods) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, AppMods)).
+setup(Port, DocRoot, Responder, AppMods, SSL) ->
+  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL)).
 
-yaws_global_configs(Port, DocRoot, Responder, AppMods) ->
+yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL) ->
   Y = yaws_config:yaws_dir(),
   {AppModModules, Opaques} = prepare_appmod_data(AppMods),
   io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
@@ -34,7 +34,13 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods) ->
               errormod_404 = Responder,
               appmods = AppModModules,
               opaque = Opaques},
-  {GC,SC}.
+  case SSL of
+    {ssl, Key, Cert} ->
+      SC2 = SC#sconf{ssl = #ssl{keyfile = Key, certfile = Cert}};
+    none ->
+      SC2 = SC
+  end,  
+  {GC,SC2}.
 
 yaws_begin_server({GC,SC}) -> 
   application:set_env(yaws, embedded, true),
