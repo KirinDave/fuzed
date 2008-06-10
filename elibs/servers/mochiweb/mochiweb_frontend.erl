@@ -1,6 +1,6 @@
 %% @author Abhay Kumar <abhay@opensynapse.net>
 
--module(frontend_server).
+-module(mochiweb_frontend).
 -author("Abhay Kumar <abhay@opensynapse.net>").
 -export([start/5]).
 -export([request_loop/4]).
@@ -13,9 +13,9 @@ request_loop(Req, DocRoot, ResponderModule, AppModSpecs) ->
   "/" ++ Path = Req:get(path),
   case modded_path(Path, AppModSpecs) of
     {NewResponderModule, Details} ->
-      NewResponderModule:mochiweb_handler(Req, Details);
+      NewResponderModule:mochiweb_handler(Req, DocRoot, Details);
     none ->
-      ResponderModule:mochiweb_handler(Req, DocRoot, [])
+      ResponderModule:mochiweb_handler(Req, DocRoot)
   end.
 
 modded_path(_Path, []) -> none;
