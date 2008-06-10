@@ -1,6 +1,6 @@
 -module(yaws_master).
 -export([start/3]).
--include("../../../include/yaws/yaws.hrl").
+-include("yaws.hrl").
 
 
 start(IP, Port, DocRoot) ->
