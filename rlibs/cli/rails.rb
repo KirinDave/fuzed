@@ -10,16 +10,15 @@ def create_spec_list(options)
   roles << options[:roles] if options[:roles]
   result.concat(%{--roles="#{roles.join(",")}"}) unless roles.empty?
   result.concat(%{ -- }) # Separates required arguments from optionals
-  spec_list = if options[:spec]
-    specs = options[:spec].split(/\|\|/)
-    specs.map {|x| result + x}
+  spec_list = unless options[:spec].empty?
+    [result + ' ' + options[:spec].join(' ')]
   else
     [result]
   end
   spec_list.map {|x| x.gsub(%r|\\|,'\\\\\\').gsub(%r|([\"\'])|, '\\\\\1')} # Make sure to escape things properly.
 end
 
-options = {:fuzedfile => rel("rlibs/rails_node.rb")}
+options = {:fuzedfile => rel("rlibs/rails_node.rb"), :spec => []}
 
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed command [options]"
@@ -37,7 +36,11 @@ OptionParser.new do |opts|
   end
   
   opts.on("--rails-root RAILS_ROOT", "Location of the Rails root") do |n|
-    options[:spec] = "--rails-root=#{n}"
+    options[:spec] << "--rails-root=#{n}"
+  end
+  
+  opts.on("--rails-env RAILS_ENV", "Rails environment (default 'development')") do |n|
+    options[:spec] << "--rails-env=#{n}"
   end
   
   opts.on("-c NUMNODES", "--clone NUMTIMES", "Number of clones of your spec to make") do |n|

@@ -15,12 +15,16 @@ opts = OptionParser.new do |opts|
   opts.on("-t", "--test", "enable test mode") do 
     options[:test] = true
   end
+  opts.on("-e", "--rails-env ENV", String) do |x|
+    options[:rails_env] = x
+  end
 end
 opts.parse(ARGV)
 options[:rails_root] = File.join(File.dirname(__FILE__), *%w[.. test app]) if options[:test]
+options[:rails_env] ||= 'development'
 
 # app
-app = Rack::Adapter::Rails.new(:root => options[:rails_root])
+app = Rack::Adapter::Rails.new(:root => options[:rails_root], :environment => options[:rails_env])
 logfile = options[:rails_root] + "/log/fuzed.#{Process.pid}.log"
 $handler = Rack::Handler::Fuzed.new(app, logfile)
 
