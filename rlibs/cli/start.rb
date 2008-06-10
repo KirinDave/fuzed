@@ -8,9 +8,9 @@ OptionParser.new do |opts|
     options[:name] = n
   end
   
-  opts.on("-s SERVER", "--server SERVER", "HTTP Server to use. Choices are: mochiweb, yaws") do |s|
-    $stderr.puts "Unknown server type. Using yaws." unless %w[mochiweb yaws].include?(s)
-    options[:http_server] = s
+  opts.on("--server SERVER", "HTTP Server to use. Choices are: mochiweb, yaws") do |server|
+    $stderr.puts "Unknown server type. Using yaws." unless %w[mochiweb yaws].include?(server)
+    options[:http_server] = server
   end
 
   opts.on("-d", "--detached", "Run as a daemon") do
