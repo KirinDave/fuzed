@@ -15,6 +15,7 @@ DEFAULT_NODE_NAME = `hostname -s`.chomp + "-#{rand(9999)}"
 DEFAULT_MASTER_NODE = "master@fuzed-dev.powerset.com"
 DEFAULT_ERLANG_CODEPATHS = %w[ebin/yaws ebin/mochiweb ebin/eunit etest ebin]
 DEFAULT_BOOT_DIR = "/p/conf/fuzed/"
+DEFAULT_HTTP_SERVER = "yaws"
 
 def cookie_hash(node)
   Digest::MD5.hexdigest(node  + "-fuzed-changethis-btw-kkthx")

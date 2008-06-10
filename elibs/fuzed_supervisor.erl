@@ -25,7 +25,11 @@ init([]) ->
   IP = {0,0,0,0},
   Port = 9001,
   DocRoot = filename:dirname(code:which(?MODULE)) ++ "/../web",
-  master_server:start(IP, Port, DocRoot),
+  
+  case application:get_env(http_server) of
+    {ok, mochiweb} -> mochiweb_master:start(IP, Port, DocRoot);
+    _ -> yaws_master:start(IP, Port, DocRoot)
+  end,
   
   %erl_boot_server:add_subnet({0, 0, 0, 0}, {0, 0, 0, 0}),
   

@@ -1,11 +1,23 @@
--module(fuzed_status).
--include("../include/yaws/yaws_api.hrl").
--compile(export_all).
+-module(status_responder).
+-include("yaws_api.hrl").
+-export([out/1, mochiweb_handler/1]).
 
+%% START Yaws Specific Stuff
 out(Arg) ->
+  get_status(extract_path_info(Arg#arg.appmoddata)).
+%% END Yaws Specific Stuff
+
+%% START Mochiweb Specific Stuff
+mochiweb_handler(Req) ->
+  "/status" ++ RestPath = Req:get(path),
+  [{status, Status}, {html, Message}] = get_status(extract_path_info(RestPath)),
+  Req:respond({Status, [], Message}).
+%% END Mochiweb Specific Stuff
+
+get_status(PathInfo) ->
   case application:get_env(fuzed, in_rotation) of
     {ok, true} ->
-      case extract_data(Arg#arg.appmoddata) of
+      case PathInfo of
         any ->
           {Status, Message} = check_pools(resource_fountain:details_list()),
           [{status, Status}, {html, Message}];
@@ -18,8 +30,8 @@ out(Arg) ->
     _ -> [{status, 500}, {html, "This master is not published."}]
   end.
 
-extract_data(Data) ->
-  case string:tokens(Data, "/") of
+extract_path_info(Path) ->
+  case string:tokens(Path, "/") of
     []          -> any;
     ["nodes"]   -> nodes;
     [Kind]      -> {Kind, 1};
