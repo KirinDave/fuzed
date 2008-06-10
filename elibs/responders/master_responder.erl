@@ -25,7 +25,7 @@ yaws_handler(_State, {call, Method, Value} = _Request, _Session) ->
 %% END Yaws Specific Stuff
 
 %% START Mochiweb Specific Stuff
-mochiweb_handler(_Req, {call, Method, TupleList}) ->
+mochiweb_handler(_Req, {call, Method, {struct, TupleList}}) ->
   rpc_translator(Method, TupleList).
 %% END Mochiweb Specific Stuff
 

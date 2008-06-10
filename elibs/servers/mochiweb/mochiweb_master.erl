@@ -17,7 +17,7 @@ request_loop(Req, DocRoot) ->
   FirstSlash = hd(string:tokens(Path, "/")),
   case {Req:get(method), FirstSlash} of
     {'POST', "api"} ->
-      mochiweb_rpc:handler(Req, {master_responder, rpc_handler});
+      mochiweb_rpc:handler(Req, {master_responder, mochiweb_handler});
     {'POST', _} ->
       Req:not_found();
     {Method, "status"} when Method =:= 'GET'; Method =:= 'HEAD' ->
