@@ -47,6 +47,11 @@ OptionParser.new do |opts|
     options[:spec] = n
   end
   
+  opts.on("--server SERVER", "HTTP Server to use. Choices are: mochiweb, yaws") do |server|
+    $stderr.puts "Unknown server type. Using yaws." unless %w[mochiweb yaws].include?(server)
+    options[:http_server] = server
+  end
+  
   opts.on("-d", "--detached", "Run as a daemon") do
     options[:detached] = true
   end
@@ -79,6 +84,7 @@ OptionParser.new do |opts|
   end
 end.parse!
   
+http_server = options[:http_server] || DEFAULT_HTTP_SERVER
 detached = options[:detached] ? '-detached' : ''
 master = options[:master_name] || DEFAULT_MASTER_NODE
 nodename = options[:name] || DEFAULT_NODE_NAME
@@ -111,6 +117,7 @@ cmd = %Q{erl -boot start_sasl \
              -name '#{nodename}' \
              -setcookie #{cookie_hash(master)} \
              -fuzed_frontend master "'#{master}'" \
+             -fuzed_frontend http_server '#{http_server}' \
              -fuzed_frontend details #{details} \
              -fuzed_frontend docroot '"#{docroot}"' \
              -fuzed_frontend port #{port} \

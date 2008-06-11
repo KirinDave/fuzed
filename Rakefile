@@ -8,7 +8,7 @@ FUZED_VERSION = "0.4.13"
 
 task :default do
   cd "elibs"
-  sh "erlc  #{ERLC_FLAGS} #{ERLC_TEST_FLAGS} *.erl"
+  sh "erlc  #{ERLC_FLAGS} #{ERLC_TEST_FLAGS} #{Dir["**/*.erl"].join(" ")}"
 end
 
 task :build_dist do

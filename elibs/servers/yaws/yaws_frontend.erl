@@ -1,18 +1,17 @@
--module(frontend_yaws).
--compile(export_all).
--include("../include/yaws/yaws.hrl").
+-module(yaws_frontend).
+-export([start/5]).
+-include("yaws.hrl").
 
+start(IP, Port, DocRoot, ResponderModule, AppModSpecs) ->
+  {GC, SC} = yaws_global_configs(IP, Port, DocRoot, ResponderModule, AppModSpecs),
+  application:set_env(yaws, embedded, true),
+  application:start(yaws),
+  yaws_api:setconf(GC, [[SC]]).
 
-setup(Port, DocRoot, Responder) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, [])).
-
-setup(Port, DocRoot, Responder, AppMods) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, AppMods)).
-
-yaws_global_configs(Port, DocRoot, Responder, AppMods) ->
+yaws_global_configs(IP, Port, DocRoot, ResponderModule, AppModSpecs) ->
   Y = yaws_config:yaws_dir(),
-  {AppModModules, Opaques} = prepare_appmod_data(AppMods),
-  io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
+  {AppModModules, Opaques} = prepare_appmod_data(AppModSpecs),
+  % io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
   GC = #gconf{yaws_dir = Y,
               ebin_dir = [],
               include_dir = [],
@@ -28,18 +27,13 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods) ->
               id = genericID
              },
   SC = #sconf{port = Port,
-              servername = "frontend_responder",
-              listen = {0,0,0,0},
+              servername = atom_to_list(ResponderModule),
+              listen = IP,
               docroot = DocRoot, 
-              errormod_404 = Responder,
+              errormod_404 = ResponderModule,
               appmods = AppModModules,
               opaque = Opaques},
   {GC,SC}.
-
-yaws_begin_server({GC,SC}) -> 
-  application:set_env(yaws, embedded, true),
-  application:start(yaws),
-  yaws_api:setconf(GC, [[SC]]).
 
 % Triples: {Path, module, Role}
 prepare_appmod_data(AppMods) when is_list(AppMods) ->

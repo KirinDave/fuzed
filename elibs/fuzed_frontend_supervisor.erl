@@ -20,17 +20,24 @@ start_link(Args) ->
 
 init([]) ->
   Master = application:get_env(master),
-  {ok, DocRoot} = application:get_env(docroot),
-  {ok, Port} = application:get_env(port),
-  AppModSpecs = process_appmods(application:get_env(appmods)),
-  ResponderModule = figure_responder(),
   case Master of
     {ok, MasterNode} ->
       ping_master(MasterNode);
     undefined ->
       MasterNode = node()
+  end,  
+  
+  IP = {0,0,0,0},
+  {ok, Port} = application:get_env(port),
+  {ok, DocRoot} = application:get_env(docroot),
+  ResponderModule = figure_responder(),
+  AppModSpecs = process_appmods(application:get_env(appmods)),
+  
+  case application:get_env(http_server) of
+    {ok, mochiweb} -> mochiweb_frontend:start(IP, Port, DocRoot, ResponderModule, AppModSpecs);
+    _ -> yaws_frontend:start(IP, Port, DocRoot, ResponderModule, AppModSpecs)
   end,
-  frontend_yaws:setup(Port, DocRoot, ResponderModule, AppModSpecs),
+  
   {ok, {{one_for_one, 10, 600},
         [{master_beater,
           {master_beater, start_link, [MasterNode, ?GLOBAL_TIMEOUT, ?SLEEP_CYCLE]},
@@ -39,7 +46,6 @@ init([]) ->
           worker,
           [master_beater]}
         ]}}.
-  
 
 % Helper functions
 
