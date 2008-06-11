@@ -35,6 +35,7 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL) ->
               opaque = Opaques},
   case SSL of
     {ssl, Key, Cert} ->
+      ssl:start(),
       SC2 = SC#sconf{ssl = #ssl{keyfile = Key, certfile = Cert}};
     none ->
       SC2 = SC
