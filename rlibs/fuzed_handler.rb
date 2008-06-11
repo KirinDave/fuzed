@@ -75,6 +75,7 @@ module Rack
         env['SERVER_NAME'] = server.split(':')[0]
         env['SERVER_PORT'] = server.split(':')[1]
         env['HTTP_VERSION'] = version.join('.')
+        env['HTTPS'] = request['https'] == 1 ? "on" : "off"
   
         env["HTTP_VERSION"] ||= env["SERVER_PROTOCOL"]
         env["QUERY_STRING"] ||= ""

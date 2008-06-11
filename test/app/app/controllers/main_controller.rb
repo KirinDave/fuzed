@@ -31,4 +31,7 @@ class MainController < ApplicationController
     loop { }
   end
   
+  def ssl
+    render :text => request.ssl?.to_s
+  end
 end
