@@ -8,7 +8,16 @@ fuzed
 
 == Summary
 
-Fuzed makes scaling fun! 
+Fuzed is an Erlang-based clustering system designed to let several
+single-threaded processes (which may or may not be reliable) form 
+into a pool which can serve requests to remote hosts. These resources
+need not be homogeneous, Fuzed breaks them up into homogeneous pools
+internally and serves out requests without "crossing the streams"
+of different software/versions of software.
+
+This is a release of Powerset's internal clustering software which
+has been adapted for use with Rails, but see the generic_json_responder
+to see exactly how it is used internally.
 
 
 == Dependencies
