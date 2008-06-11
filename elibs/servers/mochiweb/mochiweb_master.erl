@@ -14,7 +14,7 @@ stop() ->
 
 request_loop(Req, DocRoot) ->
   "/" ++ Path = Req:get(path),
-  FirstSlash = hd(string:tokens(Path, "/")),
+  FirstSlash = try hd(string:tokens(Path, "/")) catch _:_ -> "" end,
   case {Req:get(method), FirstSlash} of
     {'POST', "api"} ->
       mochiweb_rpc:handler(Req, {master_responder, mochiweb_handler});
