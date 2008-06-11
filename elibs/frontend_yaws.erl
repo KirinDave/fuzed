@@ -23,7 +23,6 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL) ->
                       ?GC_COPY_ERRLOG bor 
                       ?GC_FAIL_ON_BIND_ERR bor 
                       ?GC_PICK_FIRST_VIRTHOST_ON_NOMATCH,
-              tmpdir = yaws_config:default_tmp_dir(),
               yaws = "Yaws " ++ yaws_generated:version(),
               id = genericID
              },
