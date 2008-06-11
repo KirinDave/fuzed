@@ -69,7 +69,7 @@ module Rack
                     "rack.multiprocess" => false,
                     "rack.run_once" => false,
               
-                    "rack.url_scheme" => ["yes", "on", "1"].include?(ENV["HTTPS"]) ? "https" : "http"
+                    "rack.url_scheme" => request['https'] == 1 ? "https" : "http"
                   })
              
         env['SERVER_NAME'] = server.split(':')[0]

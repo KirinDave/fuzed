@@ -30,6 +30,7 @@ parse_arg(Request, ServerOptions) ->
   [convert_method(Request), 
    convert_version(Request), 
    convert_querypath(Request), 
+   determine_ssl(ServerOptions),
    {querydata, prep(Request#arg.querydata)}, 
    {servername, prep(ServerOptions#sconf.servername)},
    {headers, {struct, convert_headers(Request#arg.headers)}},
@@ -47,6 +48,12 @@ convert_querypath(Request)  ->
    R = Request#arg.req,
    {http_request,_Method,{_Type,Path},_} = R,
    {querypath, prep(Path)}.
+   
+determine_ssl(SC) ->
+  case SC#sconf.ssl of
+    undefined -> {https, 0};
+    _Else -> {https, 1}
+  end.
 
 convert_version(Request) ->
   R = Request#arg.req,
