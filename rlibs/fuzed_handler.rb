@@ -42,6 +42,7 @@ module Rack
           
         translate = {'content_type' => 'CONTENT_TYPE',
                      'content_length' => 'CONTENT_LENGTH',
+                     'authorization' => 'HTTP_AUTHORIZATION',
                      'accept' => 'HTTP_ACCEPT',
                      'Accept-Charset' => 'HTTP_ACCEPT_CHARSET',
                      'Accept-Encoding' => 'HTTP_ACCEPT_ENCODING',

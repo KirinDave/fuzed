@@ -82,7 +82,7 @@ convert_headers(A) ->
                    {content_length, prep(A#headers.content_length)},
                    {content_type, prep(A#headers.content_type)},
                    {content_encoding, prep(A#headers.content_encoding)},
-                   {authorization, prep(A#headers.authorization)},
+                   {authorization, prep_authorization(A#headers.authorization)},
                    {transfer_encoding, prep(A#headers.transfer_encoding)}],
   SpecialHeaders = 
     lists:map(fun({http_header, _Len, Name, _, Value}) -> {prep(Name), prep(Value)} end, 
@@ -99,6 +99,11 @@ convert_response({response, EhtmlTuple}) ->
 
 prep(A) when is_list(A) -> list_to_binary(A);
 prep(A) -> A.
+
+prep_authorization({_User, _Pass, Auth}) ->
+  list_to_binary(Auth);
+prep_authorization(Any) ->
+  Any.
 
 details() ->
   {ok, Details} = 
