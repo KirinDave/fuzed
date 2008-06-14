@@ -1,25 +1,33 @@
 %% Yaws JSON bridge
--module(generic_json_responder).
+-module(master_responder).
 %-compile(export_all).
--export([out/1, rpc_response_point/3, rpc_translator/2, process_detail_rval/1]).
--include("../include/yaws/yaws.hrl").
--include("../include/yaws/yaws_api.hrl").
--include("../include/fuzed.hrl").
+-export([out/1, yaws_handler/3, mochiweb_handler/2, rpc_translator/2, process_detail_rval/1]).
+-include("yaws.hrl").
+-include("yaws_api.hrl").
+-include("fuzed.hrl").
 
 -ifdef(TEST).
--include("../etest/generic_json_responder_test.erl").
+-include("master_responder_test.erl").
 -endif.
 
+
+%% START Yaws Specific Stuff
 out(A) ->
   A2=A#arg{state = []},
   % yaws_jsonrpc handles the JSON-RPC packaging of the response
   % it is modified from the YAWS distro in order to bring it in
   % compliance with the true JSON-RPC spec
-  yaws_jsonrpc:handler_session(A2, {?MODULE, rpc_response_point}).
+  yaws_jsonrpc:handler_session(A2, {?MODULE, yaws_handler}).
 
-rpc_response_point(_State, {call, Method, Value} = _Request, _Session) -> 
+yaws_handler(_State, {call, Method, Value} = _Request, _Session) -> 
   Result = rpc_translator(Method,Value),
   {true, 0, hello, Result}.
+%% END Yaws Specific Stuff
+
+%% START Mochiweb Specific Stuff
+mochiweb_handler(_Req, {call, Method, {struct, TupleList}}) ->
+  rpc_translator(Method, TupleList).
+%% END Mochiweb Specific Stuff
 
 rpc_translator(Method, TupleList) -> 
   Details = k(details, TupleList),

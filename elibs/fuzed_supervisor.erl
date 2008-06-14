@@ -21,8 +21,16 @@ start_link(Args) ->
   supervisor:start_link({local, ?MODULE}, ?MODULE, Args).
   
 init([]) ->
-  % start the YAWS api server.
-  json_server:test(),
+  % start the master server
+  IP = {0,0,0,0},
+  Port = 9001,
+  DocRoot = filename:dirname(code:which(?MODULE)) ++ "/../web",
+  
+  case application:get_env(http_server) of
+    {ok, mochiweb} -> mochiweb_master:start(IP, Port, DocRoot);
+    _ -> yaws_master:start(IP, Port, DocRoot)
+  end,
+  
   %erl_boot_server:add_subnet({0, 0, 0, 0}, {0, 0, 0, 0}),
   
   % return the supervisor spec for the resource fountain

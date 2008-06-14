@@ -1,18 +1,17 @@
--module(frontend_yaws).
--compile(export_all).
--include("../include/yaws/yaws.hrl").
+-module(yaws_frontend).
+-export([start/6]).
+-include("yaws.hrl").
 
+start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
+  {GC, SC} = yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs),
+  application:set_env(yaws, embedded, true),
+  application:start(yaws),
+  yaws_api:setconf(GC, [[SC]]).
 
-setup(Port, DocRoot, Responder) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, [], none)).
-
-setup(Port, DocRoot, Responder, AppMods, SSL) ->
-  yaws_begin_server(yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL)).
-
-yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL) ->
+yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
   Y = yaws_config:yaws_dir(),
-  {AppModModules, Opaques} = prepare_appmod_data(AppMods),
-  io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
+  {AppModModules, Opaques} = prepare_appmod_data(AppModSpecs),
+  % io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
   GC = #gconf{yaws_dir = Y,
               ebin_dir = [],
               include_dir = [],
@@ -27,10 +26,10 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL) ->
               id = genericID
              },
   SC = #sconf{port = Port,
-              servername = "frontend_responder",
-              listen = {0,0,0,0},
+              servername = atom_to_list(ResponderModule),
+              listen = IP,
               docroot = DocRoot, 
-              errormod_404 = Responder,
+              errormod_404 = ResponderModule,
               appmods = AppModModules,
               opaque = Opaques},
   case SSL of
@@ -41,11 +40,6 @@ yaws_global_configs(Port, DocRoot, Responder, AppMods, SSL) ->
       SC2 = SC
   end,  
   {GC,SC2}.
-
-yaws_begin_server({GC,SC}) -> 
-  application:set_env(yaws, embedded, true),
-  application:start(yaws),
-  yaws_api:setconf(GC, [[SC]]).
 
 % Triples: {Path, module, Role}
 prepare_appmod_data(AppMods) when is_list(AppMods) ->
