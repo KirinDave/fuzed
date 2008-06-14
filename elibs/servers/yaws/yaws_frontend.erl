@@ -1,5 +1,5 @@
 -module(yaws_frontend).
--export([start/6]).
+-export([start/6, start/1]).
 -include("yaws.hrl").
 
 start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
@@ -7,11 +7,23 @@ start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
   application:set_env(yaws, embedded, true),
   application:start(yaws),
   yaws_api:setconf(GC, [[SC]]).
+  
+start(Conf) ->
+  Env = #env{conf = {file, Conf},
+             debug = false,
+             trace = false,
+             traceoutput = false,
+             runmod = false,
+             embedded = true,
+             id = default},
+  {ok, _GC, SC} = yaws_config:load(Env),
+  application:set_env(yaws, embedded, true),
+  application:start(yaws),
+  GC = yaws_gc(),
+  yaws_api:setconf(GC, SC).
 
-yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
+yaws_gc() ->
   Y = yaws_config:yaws_dir(),
-  {AppModModules, Opaques} = prepare_appmod_data(AppModSpecs),
-  % io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
   GC = #gconf{yaws_dir = Y,
               ebin_dir = [],
               include_dir = [],
@@ -25,6 +37,12 @@ yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
               yaws = "Yaws " ++ yaws_generated:version(),
               id = genericID
              },
+  GC.
+
+yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
+  {AppModModules, Opaques} = prepare_appmod_data(AppModSpecs),
+  % io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
+  GC = yaws_gc(),
   SC = #sconf{port = Port,
               servername = atom_to_list(ResponderModule),
               listen = IP,

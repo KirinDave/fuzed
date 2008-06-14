@@ -27,16 +27,21 @@ init([]) ->
       MasterNode = node()
   end,  
   
-  IP = {0,0,0,0},
-  {ok, Port} = application:get_env(port),
-  {ok, DocRoot} = application:get_env(docroot),
-  SSL = ssl_config(),
-  ResponderModule = figure_responder(),
-  AppModSpecs = process_appmods(application:get_env(appmods)),
+  case application:get_env(conf) of
+    {ok, Conf} ->
+      yaws_frontend:start(Conf);
+    undefined ->
+      IP = {0,0,0,0},
+      {ok, Port} = application:get_env(port),
+      {ok, DocRoot} = application:get_env(docroot),
+      SSL = ssl_config(),
+      ResponderModule = figure_responder(),
+      AppModSpecs = process_appmods(application:get_env(appmods)),
   
-  case application:get_env(http_server) of
-    {ok, mochiweb} -> mochiweb_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs);
-    _ -> yaws_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs)
+      case application:get_env(http_server) of
+        {ok, mochiweb} -> mochiweb_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs);
+        _ -> yaws_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs)
+      end
   end,
   
   {ok, {{one_for_one, 10, 600},
