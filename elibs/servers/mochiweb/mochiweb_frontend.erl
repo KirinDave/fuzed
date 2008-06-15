@@ -2,10 +2,10 @@
 
 -module(mochiweb_frontend).
 -author("Abhay Kumar <abhay@opensynapse.net>").
--export([start/5]).
+-export([start/6]).
 -export([request_loop/4]).
 
-start(IP, Port, DocRoot, ResponderModule, AppModSpecs) ->
+start(IP, Port, DocRoot, _SSL, ResponderModule, AppModSpecs) ->
   ReqLoopFun = fun(Req) -> ?MODULE:request_loop(Req, DocRoot, ResponderModule, AppModSpecs) end,
   mochiweb_http:start([{name, ?MODULE}, {ip, IP}, {port, Port}, {loop, ReqLoopFun}]).
 

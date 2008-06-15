@@ -26,6 +26,7 @@ yaws_process_arg(Arg, SC) ->
   Headers = Arg#arg.headers,
   [{method, yaws_prepare(method, Arg)},
    {http_version, yaws_prepare(http_version, Arg)},
+   {https, determine_ssl(SC)},
    {querypath, yaws_prepare(querypath, Arg)},
    {querydata, prep(Arg#arg.querydata)}, 
    {servername, prep(SC#sconf.servername)},
@@ -33,7 +34,7 @@ yaws_process_arg(Arg, SC) ->
    {cookies, {array, lists:map(fun(X) -> prep(X) end, Headers#headers.cookie)}},
    {pathinfo, prep(SC#sconf.docroot)},
    {postdata, Arg#arg.clidata}].
-
+  
 yaws_prepare(method, Arg) ->
   {http_request, Method, {_Type, _Path}, _Version} = Arg#arg.req,
   Method;
@@ -62,7 +63,7 @@ yaws_prepare_headers(Headers) ->
                    {content_length, prep(Headers#headers.content_length)},
                    {content_type, prep(Headers#headers.content_type)},
                    {content_encoding, prep(Headers#headers.content_encoding)},
-                   {authorization, prep(Headers#headers.authorization)},
+                   {authorization, prep_authorization(Headers#headers.authorization)},
                    {transfer_encoding, prep(Headers#headers.transfer_encoding)}],
   SpecialHeaders = 
     lists:map(fun({http_header, _Len, Name, _, Value}) -> {prep(Name), prep(Value)} end, 
@@ -147,6 +148,12 @@ mochiweb_process_key(K) when is_list(K) ->
 
 %% END Mochiweb Specific Stuff
 
+determine_ssl(SC) ->
+  case SC#sconf.ssl of
+    undefined -> 0;
+    _Else -> 1
+  end.
+  
 execute_request(Pool, Parameters) ->
   case node_api:safely_send_call_to_pool_no_lookup(handle_request, Parameters, pure, Pool) of
     {result, Result} -> result_processor(Result);
@@ -158,6 +165,11 @@ execute_request(Pool, Parameters) ->
 result_processor({response, {{status, Status}, {allheaders, HeaderTuple}, {html, ResultBinary}}}) ->
   ProcessedHeaderList = lists:map(fun({header, Name, Value}) -> {header, [binary_to_list(Name) ++ ":", binary_to_list(Value)]} end, tuple_to_list(HeaderTuple)),
   {Status, ProcessedHeaderList, binary_to_list(ResultBinary)}.
+
+prep_authorization({_User, _Pass, Auth}) ->
+  list_to_binary(Auth);
+prep_authorization(Any) ->
+  Any.
 
 details() ->
   {ok, Details} = application:get_env(fuzed_frontend, details),

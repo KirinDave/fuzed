@@ -42,6 +42,7 @@ module Rack
           
         translate = {'content_type' => 'CONTENT_TYPE',
                      'content_length' => 'CONTENT_LENGTH',
+                     'authorization' => 'HTTP_AUTHORIZATION',
                      'accept' => 'HTTP_ACCEPT',
                      'Accept-Charset' => 'HTTP_ACCEPT_CHARSET',
                      'Accept-Encoding' => 'HTTP_ACCEPT_ENCODING',
@@ -69,12 +70,13 @@ module Rack
                     "rack.multiprocess" => false,
                     "rack.run_once" => false,
               
-                    "rack.url_scheme" => ["yes", "on", "1"].include?(ENV["HTTPS"]) ? "https" : "http"
+                    "rack.url_scheme" => request['https'] == 1 ? "https" : "http"
                   })
              
         env['SERVER_NAME'] = server.split(':')[0]
         env['SERVER_PORT'] = server.split(':')[1]
         env['HTTP_VERSION'] = version.join('.')
+        env['HTTPS'] = request['https'] == 1 ? "on" : "off"
   
         env["HTTP_VERSION"] ||= env["SERVER_PROTOCOL"]
         env["QUERY_STRING"] ||= ""

@@ -1,6 +1,8 @@
 require 'chronic'
 
 class MainController < ApplicationController
+  before_filter :authenticate, :only => :ssl
+
   def index
     
   end
@@ -31,4 +33,15 @@ class MainController < ApplicationController
     loop { }
   end
   
+  def ssl
+    render :text => request.ssl?.to_s
+  end
+  
+  protected
+
+  def authenticate
+    authenticate_or_request_with_http_basic do |username, password|
+      username == "foo" && password == "bar"
+    end
+  end
 end

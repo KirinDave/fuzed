@@ -52,6 +52,10 @@ OptionParser.new do |opts|
     options[:http_server] = server
   end
   
+  opts.on("--conf CONF", "Configuration file") do |conf|
+    options[:conf] = conf
+  end
+  
   opts.on("-d", "--detached", "Run as a daemon") do
     options[:detached] = true
   end
@@ -60,9 +64,21 @@ OptionParser.new do |opts|
     options[:docroot] = dir
     raise "No such directory for docroot!" unless File.directory?(dir)
   end
+  
+  opts.on("--ssl-key KEY", "SSL key file.") do |key|
+    options[:ssl_key] = key
+  end
+  
+  opts.on("--ssl-cert CERT", "SSL cert file.") do |cert|
+    options[:ssl_cert] = cert
+  end
 
   opts.on("-p", "--port PORT", "Port for web server.") do |dir|
     options[:port] = dir
+  end
+  
+  opts.on("-P", "--pidfile PIDFILE", "Location to write pid file.") do |pidfile|
+    options[:pidfile] = pidfile
   end
 
   opts.on("-f", "--frontend-responder MODULE", "Module to use for Pool calculation.") do |mod|
@@ -83,32 +99,25 @@ OptionParser.new do |opts|
     exit(0)
   end
 end.parse!
-  
+
 http_server = options[:http_server] || DEFAULT_HTTP_SERVER
 detached = options[:detached] ? '-detached' : ''
 master = options[:master_name] || DEFAULT_MASTER_NODE
 nodename = options[:name] || DEFAULT_NODE_NAME
-docroot = options[:docroot] || "/tmp"
+
+pidfile = options[:pidfile] ? "-fuzed_frontend pidfile \"'#{options[:pidfile]}'\"" : ''
+
 spec = options[:spec] || "kind=normal"
 details = details_from_string(spec)
-port = options[:port] || "8080"
-mod = if options[:module]
-        "-fuzed_frontend responder #{options[:module]}"
-      else
-        ""
-      end
-
-fuzed_appspecs = if options[:appmod_specs]
-                   "-fuzed_frontend appmods '" + options[:appmod_specs] + "'"
-                 else
-                   ""
-                 end
 
 if master !~ /@/
   abort "Please specify fully qualified master node name e.g. -m master@fuzed.tools.powerset.com"
 end
 
-cmd = %Q{erl -boot start_sasl \
+cmd = ''
+
+if options[:conf]
+  cmd = %Q{erl -boot start_sasl \
              #{detached} \
              +Bc \
              +K true \
@@ -116,14 +125,53 @@ cmd = %Q{erl -boot start_sasl \
              #{code_paths}
              -name '#{nodename}' \
              -setcookie #{cookie_hash(master)} \
+             #{pidfile} \
              -fuzed_frontend master "'#{master}'" \
-             -fuzed_frontend http_server '#{http_server}' \
              -fuzed_frontend details #{details} \
-             -fuzed_frontend docroot '"#{docroot}"' \
-             -fuzed_frontend port #{port} \
-             #{fuzed_appspecs} \
-             #{mod} \
+             -fuzed_frontend conf "'#{options[:conf]}'" \
              -config '#{FUZED_ROOT}/conf/fuzed_base' \
              -run fuzed_frontend start}.squeeze(' ')
+else
+  docroot = options[:docroot] || "/tmp"
+  port = options[:port] || "8080"
+  mod = if options[:module]
+          "-fuzed_frontend responder #{options[:module]}"
+        else
+          ""
+        end
+
+  fuzed_appspecs = if options[:appmod_specs]
+                     "-fuzed_frontend appmods '" + options[:appmod_specs] + "'"
+                   else
+                     ""
+                   end
+
+  ssl_details = ''
+  if options[:ssl_key] && options[:ssl_cert]
+    ssl_details << %Q{-fuzed_frontend ssl_key '"#{options[:ssl_key]}"' }
+    ssl_details << %Q{-fuzed_frontend ssl_cert '"#{options[:ssl_cert]}"' }
+  end
+
+  cmd = %Q{erl -boot start_sasl \
+               #{detached} \
+               +Bc \
+               +K true \
+               -smp enable \
+               #{code_paths}
+               -name '#{nodename}' \
+               -setcookie #{cookie_hash(master)} \
+               #{pidfile} \
+               -fuzed_frontend master "'#{master}'" \
+               -fuzed_frontend http_server '#{http_server}' \
+               -fuzed_frontend details #{details} \
+               -fuzed_frontend docroot '"#{docroot}"' \
+               #{ssl_details} \
+               -fuzed_frontend port #{port} \
+               #{fuzed_appspecs} \
+               #{mod} \
+               -config '#{FUZED_ROOT}/conf/fuzed_base' \
+               -run fuzed_frontend start}.squeeze(' ')
+end
+
 puts cmd
 exec(cmd)

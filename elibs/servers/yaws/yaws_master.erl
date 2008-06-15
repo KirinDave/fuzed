@@ -20,7 +20,6 @@ yaws_global_configs(IP, Port, DocRoot) ->
     cache_refresh_secs = 30,
     flags =  ?GC_AUTH_LOG bor ?GC_COPY_ERRLOG bor ?GC_FAIL_ON_BIND_ERR bor ?GC_PICK_FIRST_VIRTHOST_ON_NOMATCH,
     %uid = element(2, yaws:getuid()),
-    tmpdir = yaws_config:default_tmp_dir(),
     yaws = "Yaws " ++ yaws_generated:version(),
     id = genericID
   },
@@ -31,3 +30,4 @@ yaws_global_configs(IP, Port, DocRoot) ->
               appmods = [{"api", master_responder},
                          {"status", status_responder}]},
   {GC,SC}.
+
