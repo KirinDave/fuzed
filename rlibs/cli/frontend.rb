@@ -76,6 +76,10 @@ OptionParser.new do |opts|
   opts.on("-p", "--port PORT", "Port for web server.") do |dir|
     options[:port] = dir
   end
+  
+  opts.on("-P", "--pidfile PIDFILE", "Location to write pid file.") do |pidfile|
+    options[:pidfile] = pidfile
+  end
 
   opts.on("-f", "--frontend-responder MODULE", "Module to use for Pool calculation.") do |mod|
     options[:module] = mod
@@ -101,6 +105,8 @@ detached = options[:detached] ? '-detached' : ''
 master = options[:master_name] || DEFAULT_MASTER_NODE
 nodename = options[:name] || DEFAULT_NODE_NAME
 
+pidfile = options[:pidfile] ? "-fuzed_frontend pidfile \"'#{options[:pidfile]}'\"" : ''
+
 spec = options[:spec] || "kind=normal"
 details = details_from_string(spec)
 
@@ -119,6 +125,7 @@ if options[:conf]
              #{code_paths}
              -name '#{nodename}' \
              -setcookie #{cookie_hash(master)} \
+             #{pidfile} \
              -fuzed_frontend master "'#{master}'" \
              -fuzed_frontend details #{details} \
              -fuzed_frontend conf "'#{options[:conf]}'" \
@@ -153,6 +160,7 @@ else
                #{code_paths}
                -name '#{nodename}' \
                -setcookie #{cookie_hash(master)} \
+               #{pidfile} \
                -fuzed_frontend master "'#{master}'" \
                -fuzed_frontend http_server '#{http_server}' \
                -fuzed_frontend details #{details} \

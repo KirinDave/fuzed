@@ -25,7 +25,14 @@ init([]) ->
       ping_master(MasterNode);
     undefined ->
       MasterNode = node()
-  end,  
+  end,
+  
+  case application:get_env(pidfile) of
+    {ok, Location} ->
+      Pid = os:getpid(),
+      ok = file:write_file(Location, list_to_binary(Pid));
+    undefined -> ok
+  end,
   
   case application:get_env(conf) of
     {ok, Conf} ->
