@@ -11,8 +11,7 @@
          terminate/2, code_change/3]).
 
 
--record(state, 
-  {
+-record(state, {
    active_nodes = [],
    nodes = [],
    pending_requests = queue:new(),
@@ -20,8 +19,7 @@
    node_api_definition = [],
    details = [],
    logging = false
-  }
-).
+  }).
 
 %% Common type annotations:
 % @type details() = [{binary(), {int(),int(),int(),int()}}]
@@ -32,7 +30,7 @@
 %
 
 start_link(Details) ->
-    gen_server:start_link(?MODULE, [Details], []).
+  gen_server:start_link(?MODULE, [Details], []).
 
 start(Details) ->
   gen_server:start(?MODULE, [Details], []).
