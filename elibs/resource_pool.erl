@@ -244,16 +244,8 @@ insert_matching_node_once(Node, State) ->
   if
     NodeApiSignature =:= State#state.node_api_signature -> 
       pool_sweeper:watch(self(), Node),
-      State#state{nodes=insert_node_unless_member(Node,Nodes), 
-                  active_nodes=insert_node_unless_member(Node,ActiveNodes)};
+      State#state{nodes=lists:umerge(Nodes, [Node]),
+                  active_nodes=lists:umerge(ActiveNodes, [Node])};
     true -> 
       State
-  end.
-
-insert_node_unless_member(X, List) when is_list(List) -> 
-  case lists:member(X, List) of
-    true ->
-      List;
-    false -> 
-      [X|List]
   end.
