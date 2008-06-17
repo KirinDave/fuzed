@@ -5,6 +5,7 @@ require 'stringio'
 require 'logger'
 
 # gems
+require 'rubygems'
 require 'rack'
 
 # initialize logging info

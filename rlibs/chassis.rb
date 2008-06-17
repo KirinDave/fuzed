@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'optparse'
 require 'erlectricity'
-require 'json' unless ''.respond_to?(:to_json) # prevent from clashing with Rails' built-in json library
+require 'json' unless $rails_json # prevent from clashing with Rails' built-in json library
 
 class Chassis
   class << self
