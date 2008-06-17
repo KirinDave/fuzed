@@ -47,6 +47,13 @@ yaws_prepare(querypath, Arg) ->
   prep(Path);
 yaws_prepare(remote_addr, Arg) ->
   Socket = Arg#arg.clisock,
+  try
+    get_remote_addr(Socket)
+  catch
+    _:_ -> ok
+  end.
+  
+get_remote_addr(Socket) ->
   Peer = inet:peername(Socket),
   case Peer of
     {ok, {AddressIntegerTuple, _Port}} ->
