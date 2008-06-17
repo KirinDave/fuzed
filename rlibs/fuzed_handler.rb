@@ -33,6 +33,7 @@ module Rack
         
         method = request['method']
         version = request['http_version'] # => e.g. [1, 1]
+        remote_addr = request['remote_addr']
         path = request['querypath']
         query = request['querydata'] == :undefined ? '' : request['querydata']
         server = request['servername']
@@ -57,6 +58,7 @@ module Rack
                
         env = {}
         env['REQUEST_METHOD'] = method.to_s
+        env['REMOTE_ADDR'] = remote_addr
         env['QUERY_STRING'] = query
         env["PATH_INFO"] = path
         env = headers.inject(env) { |a, x| a[translate[x[0]] || x[0].to_s] = x[1]; a }
