@@ -1,3 +1,5 @@
+$rails_json = true
+
 # core
 require 'optparse'
 

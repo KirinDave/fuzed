@@ -37,6 +37,10 @@ class MainController < ApplicationController
     render :text => request.ssl?.to_s
   end
   
+  def ip
+    render :text => request.remote_ip.to_s
+  end
+  
   protected
 
   def authenticate
