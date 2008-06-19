@@ -13,7 +13,7 @@ end
 
 task :build_dist do
   cd "elibs"
-  sh "erlc +hipe #{ERLC_FLAGS} *.erl"
+  sh "erlc  +hipe #{ERLC_FLAGS} #{ERLC_TEST_FLAGS} #{Dir["**/*.erl"].join(" ")}"
 end
 
 task :econsole do
