@@ -6,6 +6,8 @@ ERLC_TEST_FLAGS = "-pa ../deps/eunit/ebin -I ../deps/eunit/include -I .. -I ../e
 ERLC_FLAGS = "+debug_info -W2 -I ../include -I ../include/yaws -o ../ebin"
 FUZED_VERSION = "0.4.13"
 
+task :prepare => [:build_eunit, :build_dist]
+
 task :default do
   cd "elibs"
   sh "erlc  #{ERLC_FLAGS} #{ERLC_TEST_FLAGS} #{Dir["**/*.erl"].join(" ")}"
