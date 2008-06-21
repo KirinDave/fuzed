@@ -2,7 +2,7 @@
 require 'rubygems'
 require 'rake'
 
-ERLC_TEST_FLAGS = "-pa ../ebin/eunit -I .. -I ../etest -I ../include/eunit -DTEST"
+ERLC_TEST_FLAGS = "-pa ../deps/eunit/ebin -I ../deps/eunit/include -I .. -I ../etest -DTEST"
 ERLC_FLAGS = "+debug_info -W2 -I ../include -I ../include/yaws -o ../ebin"
 FUZED_VERSION = "0.4.13"
 
@@ -17,7 +17,7 @@ task :build_dist do
 end
 
 task :econsole do
-  sh "erl +Bc +K true -smp enable -pz ./etest -pz ./ebin/yaws -pz ./ebin/ -pz ./ebin/eunit -sname local_console_#{$$} -kernel start_boot_server true"
+  sh "erl +Bc +K true -smp enable -pz ./etest -pz ./ebin/yaws -pz ./ebin/ -pz ./deps/eunit/ebin -sname local_console_#{$$} -kernel start_boot_server true"
 end
 
 task :console do
@@ -26,7 +26,7 @@ end
 
 task :distel do
   puts "Starting distel editing session emacs@localhost"
-  sh "erl +Bc +K true -smp enable -pz ./etest -pz ./ebin/yaws -pz ./ebin/ -pz ./ebin/eunit -name emacs@chisai.local -detached"
+  sh "erl +Bc +K true -smp enable -pz ./etest -pz ./ebin/yaws -pz ./ebin/ -pz ./deps/eunit/ebin -name emacs@chisai.local -detached"
 end
 
 task :test => [:default] do
@@ -40,7 +40,7 @@ task :test => [:default] do
   end
   mod_directives = mods.map {|m| "-run #{m} test"}.join(" ")
   # -run #{ENV['MOD']} test
-  sh %Q{erl +K true -smp enable -pz ./etest -pz ./ebin/yaws -pz ./ebin/ -pa ./ebin/eunit -sname local_console_#{$$} -noshell #{mod_directives} -run erlang halt}
+  sh %Q{erl +K true -smp enable -pz ./etest -pz ./ebin/yaws -pz ./ebin/ -pa ./deps/eunit/ebin -sname local_console_#{$$} -noshell #{mod_directives} -run erlang halt}
 end
 
 task :docs do
@@ -48,4 +48,8 @@ task :docs do
   #sh %|cd doc && erl -noshell -run edoc_run files #{files}|
   files = Dir["elibs/*.erl"].map { |x| "'../" + x + "'"}.join " "
   sh %|cd doc && erl -noshell -s init stop -run edoc files #{files}|
+end
+
+task :build_eunit do
+  sh %[cd deps/eunit && make clean && make all]
 end
