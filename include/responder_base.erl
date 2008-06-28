@@ -60,7 +60,6 @@ get_remote_addr(Socket) ->
       AddressIntegerList = tuple_to_list(AddressIntegerTuple),
       AddressStringList = lists:map(fun(X) -> integer_to_list(X) end, AddressIntegerList),
       Address = string:join(AddressStringList, "."),
-      io:format("~p~n", [Address]),
       prep(Address);
     _Else ->
       "0.0.0.0"
