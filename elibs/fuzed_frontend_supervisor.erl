@@ -19,19 +19,19 @@ start_link(Args) ->
   
 
 init([]) ->
+  case application:get_env(pidfile) of
+    {ok, Location} ->
+      Pid = os:getpid(),
+      ok = file:write_file(Location, list_to_binary(Pid));
+    undefined -> ok
+  end,
+  
   Master = application:get_env(master),
   case Master of
     {ok, MasterNode} ->
       ping_master(MasterNode);
     undefined ->
       MasterNode = node()
-  end,
-  
-  case application:get_env(pidfile) of
-    {ok, Location} ->
-      Pid = os:getpid(),
-      ok = file:write_file(Location, list_to_binary(Pid));
-    undefined -> ok
   end,
   
   case application:get_env(conf) of
