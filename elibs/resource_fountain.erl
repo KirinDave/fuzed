@@ -1,5 +1,4 @@
 %%%-------------------------------------------------------------------
-%%% File    : /Users/dfayram/Projects/concilium/elibs/resource_fountain.erl
 %%% Author  : David Fayram
 %%%-------------------------------------------------------------------
 -module(resource_fountain).
