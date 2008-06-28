@@ -41,6 +41,10 @@ class MainController < ApplicationController
     render :text => request.remote_ip.to_s
   end
   
+  def fail
+    raise "failboat"
+  end
+  
   protected
 
   def authenticate

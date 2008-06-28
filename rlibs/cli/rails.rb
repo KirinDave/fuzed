@@ -109,6 +109,7 @@ cmd = %Q{erl -boot start_sasl \
              -fuzed_node master "'#{master}'" \
              -fuzed_node spec '#{spec}' \
              -fuzed_node num_nodes #{num_nodes} \
+             -fuzed_node framework 'rails' \
              #{inet} \
              -config '#{FUZED_ROOT}/conf/fuzed_base' \
              -run fuzed_node start}.squeeze(' ')

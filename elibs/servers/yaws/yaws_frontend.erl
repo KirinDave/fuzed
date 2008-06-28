@@ -1,9 +1,9 @@
 -module(yaws_frontend).
--export([start/6, start/1]).
+-export([start/7, start/1]).
 -include("yaws.hrl").
 
-start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
-  {GC, SC} = yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs),
+start(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs) ->
+  {GC, SC} = yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs),
   application:set_env(yaws, embedded, true),
   application:start(yaws),
   yaws_api:setconf(GC, [[SC]]).
@@ -39,7 +39,7 @@ yaws_gc() ->
              },
   GC.
 
-yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
+yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs) ->
   {AppModModules, Opaques} = prepare_appmod_data(AppModSpecs),
   % io:format("DEBUG:~n~p~n---~n~p~n", [AppModModules, Opaques]),
   GC = yaws_gc(),
@@ -48,6 +48,7 @@ yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs) ->
               listen = IP,
               docroot = DocRoot, 
               errormod_404 = ResponderModule,
+              errormod_crash = FrameworkModule,
               appmods = AppModModules,
               opaque = Opaques},
   case SSL of
