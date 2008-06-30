@@ -43,11 +43,12 @@ init([]) ->
       {ok, DocRoot} = application:get_env(docroot),
       SSL = ssl_config(),
       ResponderModule = figure_responder(),
+      FrameworkModule = figure_framework_module(),
       AppModSpecs = process_appmods(application:get_env(appmods)),
   
       case application:get_env(http_server) of
-        {ok, mochiweb} -> mochiweb_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs);
-        _ -> yaws_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, AppModSpecs)
+        {ok, mochiweb} -> mochiweb_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs);
+        _ -> yaws_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs)
       end
   end,
   
@@ -94,6 +95,12 @@ figure_responder() ->
       Module;
     undefined -> frontend_responder
   end.
+  
+figure_framework_module() ->
+  {ok, Framework} = application:get_env(framework),
+  FrameworkString = atom_to_list(Framework),
+  FrameworkModuleString = FrameworkString ++ "_framework",
+  list_to_atom(FrameworkModuleString).
       
 process_appmods(undefined) -> [];
 process_appmods({ok, V}) -> V.

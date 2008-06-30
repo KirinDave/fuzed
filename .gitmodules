@@ -1,3 +1,3 @@
 [submodule "deps/eunit"]
 	path = deps/eunit
-	url = git@github.com:abhay/eunit.git
+	url = git://github.com/abhay/eunit.git

@@ -52,6 +52,11 @@ OptionParser.new do |opts|
     options[:http_server] = server
   end
   
+  opts.on("--framework FRAMEWORK", "Framework to use. Choices are: rails") do |framework|
+    $stderr.puts "Unknown framework type. Using rails." unless %w[framework].include?(framework)
+    options[:framework] = framework
+  end
+  
   opts.on("--conf CONF", "Configuration file") do |conf|
     options[:conf] = conf
   end
@@ -101,6 +106,7 @@ OptionParser.new do |opts|
 end.parse!
 
 http_server = options[:http_server] || DEFAULT_HTTP_SERVER
+framework = options[:framework] || 'rails'
 detached = options[:detached] ? '-detached' : ''
 master = options[:master_name] || DEFAULT_MASTER_NODE
 nodename = options[:name] || DEFAULT_NODE_NAME
@@ -165,6 +171,7 @@ else
                -fuzed_frontend http_server '#{http_server}' \
                -fuzed_frontend details #{details} \
                -fuzed_frontend docroot '"#{docroot}"' \
+               -fuzed_frontend framework #{framework} \
                #{ssl_details} \
                -fuzed_frontend port #{port} \
                #{fuzed_appspecs} \
