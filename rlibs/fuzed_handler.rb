@@ -1,4 +1,4 @@
-LOG = true
+LOG = false
 
 # core
 require 'stringio'
@@ -25,7 +25,7 @@ module Rack
     class Fuzed
       def initialize(app, logfile)
         @app = app
-        $logger = Logger.new(logfile)
+        $logger = Logger.new(logfile) if LOG
       end
       
       def service(request)
