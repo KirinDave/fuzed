@@ -6,7 +6,7 @@ ERLC_TEST_FLAGS = "-pa ../deps/eunit/ebin -I ../deps/eunit/include -I .. -I ../e
 ERLC_FLAGS = "+debug_info -W2 -I ../include -I ../include/yaws -o ../ebin"
 FUZED_VERSION = "0.4.13"
 
-task :prepare => [:build_eunit, :build_dist]
+task :prepare => [:build_deps, :build_dist]
 
 task :default do
   cd "elibs"
@@ -51,6 +51,8 @@ task :docs do
   files = Dir["elibs/*.erl"].map { |x| "'../" + x + "'"}.join " "
   sh %|cd doc && erl -noshell -s init stop -run edoc files #{files}|
 end
+
+task :build_deps => [:build_eunit]
 
 task :build_eunit do
   sh %[cd deps/eunit && make clean && make all]
