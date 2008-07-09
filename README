@@ -39,12 +39,17 @@ repo into a directory named 'fuzed' within your current working directory.
 
 $ git clone git://github.com/KirinDave/fuzed.git
 
-Move into the 'fuzed' directory and run 'rake' to build fuzed.
+Move into the 'fuzed' directory and run the following commands to build fuzed:
 
 $ cd fuzed
+$ git submodule init
+$ git submodule update
+$ rake build_deps
 $ rake
 
 You should not see any error messages if the build was successful.
+
+Whenever additional dependencies added, you'll need to run init and update again.
 
 == Setting up a simple Rails cluster on a single machine
 
