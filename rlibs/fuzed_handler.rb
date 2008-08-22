@@ -55,7 +55,8 @@ module Rack
                      'referer' => 'HTTP_REFERER',
                      'user_agent' => 'HTTP_USER_AGENT',
                      'X-Prototype-Version' => 'HTTP_X_PROTOTYPE_VERSION',
-                     'X-Requested-With' => 'HTTP_X_REQUESTED_WITH'}
+                     'X-Requested-With' => 'HTTP_X_REQUESTED_WITH',
+                     'X-Forwarded-Proto' => 'HTTP_X_FORWARDED_PROTO'}
                
         env = {}
         env['REQUEST_METHOD'] = method.to_s
