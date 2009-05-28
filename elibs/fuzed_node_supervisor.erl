@@ -44,7 +44,7 @@ ping_master(Node) ->
       ping_master(Node)
   end.
 
-init_helper(Master, NumNodes, Spec) when integer(NumNodes) ->
+init_helper(Master, NumNodes, Spec) when is_integer(NumNodes) ->
   error_logger:info_msg("Starting with ~p set(s) of nodes.~n", [NumNodes]), 
   start_rm(Master, explode_spec(Spec, NumNodes)).
   

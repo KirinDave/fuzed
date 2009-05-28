@@ -301,9 +301,9 @@ leader_cast(Name, Request) ->
     ok.
 
 
-do_cast(Tag, Name, Request) when atom(Name) ->
+do_cast(Tag, Name, Request) when is_atom(Name) ->
     Name ! {Tag, Request};
-do_cast(Tag, Pid, Request) when pid(Pid) ->
+do_cast(Tag, Pid, Request) when is_pid(Pid) ->
     Pid ! {Tag, Request}.
 
 
@@ -497,7 +497,7 @@ safe_loop(#server{mod = Mod, state = State} = Server, Role,
 	    % We are only monitoring one proc, the leader!
 	    Node = case From of
 		       {Name,_Node} -> _Node;
-		       _ when pid(From) -> node(From)
+		       _ when is_pid(From) -> node(From)
 		   end,
 	    case Node == E#election.leadernode of
 		true ->
@@ -511,7 +511,7 @@ safe_loop(#server{mod = Mod, state = State} = Server, Role,
 	{'DOWN',Ref,process,From,_Reason} = Msg ->
 	    Node = case From of
 		       {Name,_Node} -> _Node;
-		       _ when pid(From) -> node(From)
+		       _ when is_pid(From) -> node(From)
 		   end,
 	    NewMon = E#election.monitored -- [{Ref,Node}],
 	    case lists:member(Node,E#election.candidate_nodes) of
@@ -653,7 +653,7 @@ loop(#server{parent = Parent,
                                                 % We are only monitoring one proc, the leader!
           Node = case From of
                    {Name,_Node} -> _Node;
-                   _ when pid(From) -> node(From)
+                   _ when is_pid(From) -> node(From)
                  end,
           case Node == E#election.leadernode of
             true ->
@@ -667,7 +667,7 @@ loop(#server{parent = Parent,
         {'DOWN',Ref,process,From,_Reason} ->
           Node = case From of
                    {Name,_Node} -> _Node;
-                   _ when pid(From) -> node(From)
+                   _ when is_pid(From) -> node(From)
                  end,
           NewMon = E#election.monitored -- [{Ref,Node}],
           case lists:member(Node,E#election.candidate_nodes) of
@@ -1058,7 +1058,7 @@ mon_node(E,Proc) ->
     Node = case Proc of
 	       {_Name,Node_} -> 
 		   Node_;
-	       Pid when pid(Pid) -> 
+	       Pid when is_pid(Pid) -> 
 		   node(Pid)
 	   end,
     case iselem(Node,E#election.monitored) of

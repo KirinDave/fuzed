@@ -128,7 +128,7 @@ process_detail_rval(String) ->
 
 normalize_detail_tuple({tags, Taglist}) -> {<<"tags">>, [list_to_binary(X) || X <- string:tokens(Taglist, ",")]};
 normalize_detail_tuple({roles, RoleList}) -> {<<"roles">>, [list_to_binary(X) || X <- string:tokens(RoleList, ",")]};
-normalize_detail_tuple({Key, Value}) when integer(Value) -> {atom_to_binary(Key), list_to_binary(io_lib:format("~p", [Value]))};
+normalize_detail_tuple({Key, Value}) when is_integer(Value) -> {atom_to_binary(Key), list_to_binary(io_lib:format("~p", [Value]))};
 normalize_detail_tuple({Key, Value}) when is_list(Value) -> {atom_to_binary(Key), process_detail_rval(Value)};
 normalize_detail_tuple({Key, Value}) when is_atom(Value) -> {atom_to_binary(Key), atom_to_binary(Value)}.
 

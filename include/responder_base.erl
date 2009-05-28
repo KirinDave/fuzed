@@ -161,10 +161,8 @@ mochiweb_process_key(K) when is_atom(K) ->
   mochiweb_process_key(atom_to_list(K));
 mochiweb_process_key(K) when is_list(K) ->
   Downcased = string:to_lower(K),
-  case regexp:gsub(Downcased, "-", "_") of
-    {ok, Cleaned, _Count} -> list_to_atom(Cleaned);
-    _ -> list_to_atom(Downcased)
-  end.
+  Cleaned = re:replace(Downcased, "-", "_", [ global, { return, list } ] ),
+  list_to_atom( Cleaned ).
 
 %% END Mochiweb Specific Stuff
 
