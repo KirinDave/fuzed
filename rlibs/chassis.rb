@@ -198,7 +198,7 @@ class Chassis
   # Never returns
   def start
     receive(IO.new(3), IO.new(4)) do |f|
-      f.when(:call, Array) do |args|
+      f.when([:call, Array]) do |args|
         method = args[0]
         retype = args[1]
         args = args[2..-1]
@@ -208,12 +208,12 @@ class Chassis
       end
       
       f.when(:config) do
-        f.send! :result, self.config
+        f.send! [:result, self.config]
         f.receive_loop
       end
       
       f.when(:api) do
-        f.send! :result, self.api
+        f.send! [:result, self.api]
         f.receive_loop
       end
       

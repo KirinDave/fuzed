@@ -121,7 +121,7 @@ module Rack
           res = 
           [:response,
            [[:status, status.to_i],
-            [:allheaders, headers.inject([]) { |a, x| a += x[1].map { |y| [:header, x[0], y] } }],
+            [:allheaders, headers.inject([]) { |a, x| a += x[1].each_line.map { |y| [:header, x[0], y] } }],
             [:html, html]]]
         rescue => e
           res = 
