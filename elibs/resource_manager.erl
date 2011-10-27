@@ -87,8 +87,8 @@ init([Master, Nodes, Preproc, Postproc, Timeout]) ->
   process_flag(trap_exit, true),
   spawn_nodes(Nodes, Preproc, Timeout, dict:new()),
   {ok, #state{spec = Nodes,
-              preproc = Preproc, 
-              nodes = dict:new(), 
+              preproc = Preproc,
+              nodes = dict:new(),
               postproc = Postproc,
               timeout = Timeout,
               master = Master}}.
@@ -103,11 +103,11 @@ init([Master, Nodes, Preproc, Postproc, Timeout]) ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 
-handle_call(nodecount,_From,State) -> 
+handle_call(nodecount,_From,State) ->
   {reply, length(dict:fetch_keys(State#state.nodes)), State};
 handle_call(nodes, _From, State) ->
   {reply, dict:fetch_keys(State#state.nodes), State};
-handle_call(spec, _From, State) -> 
+handle_call(spec, _From, State) ->
   {reply, State#state.spec, State}.
 
 %%--------------------------------------------------------------------
@@ -119,26 +119,26 @@ handle_call(spec, _From, State) ->
 
 % Node, Setup, Finisher, Registry
 
-handle_cast({add, Cmd, Node}, State) -> 
+handle_cast({add, Cmd, Node}, State) ->
   try resource_manager:add_to_fountain(Node) of
-    _NoOneCares -> 
+    _NoOneCares ->
       link(Node), % We wuv woo!
       NewDict = add_node_record(Node, Cmd, State#state.nodes),
       {noreply, State#state{nodes=NewDict}}
   catch
-    _:E -> 
+    _:E ->
       error_logger:error_msg("Tried to register fresh node ~p with fountain, but failed because: ~p", [Node, E]),
       {noreply, State}
   end;
-handle_cast(start_fresh_nodes, State) -> 
+handle_cast(start_fresh_nodes, State) ->
   spawn_nodes(State#state.spec, State#state.preproc, State#state.timeout, State#state.nodes),
   {noreply, State};
-handle_cast(stop_all_nodes, State) -> 
-  NodeDict = State#state.nodes, 
+handle_cast(stop_all_nodes, State) ->
+  NodeDict = State#state.nodes,
   RenewNodes = fun(N) -> cease_node(N,State#state.postproc,NodeDict) end,
   lists:foreach(RenewNodes, dict:fetch_keys(NodeDict)),
   {noreply, State#state{nodes=dict:new()}};
-handle_cast({change_spec, NewSpec}, State) -> 
+handle_cast({change_spec, NewSpec}, State) ->
   {noreply, State#state{spec=NewSpec}};
 handle_cast(register_nodes, State) ->
   error_logger:info_msg("Reconnected to ~p, reregistering nodes now.~n", [State#state.master]),
@@ -154,16 +154,16 @@ handle_cast(register_nodes, State) ->
 %%                                       {stop, Reason, State}
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
-handle_info({'EXIT', Pid, Reason}, State) -> 
+handle_info({'EXIT', Pid, Reason}, State) ->
   case dict:is_key(Pid, State#state.nodes) of
     true ->
       error_logger:warning_msg("PortWrapper ~p was terminated due to: ~p. Restarting & Heating.", [Pid,Reason]),
       NewNodeDict = restart_dead_node(Pid,State#state.preproc, State#state.postproc,State#state.timeout,State#state.nodes),
       {noreply, State#state{nodes=NewNodeDict}};
-    false -> 
+    false ->
       {noreply, State}
   end;
-handle_info(Any,S) -> 
+handle_info(Any,S) ->
   error_logger:info_msg("Got INFO ~p~n", [Any]),
   {noreply, S}.
 
@@ -195,7 +195,7 @@ run_call({Module, Function}, Args) -> apply(Module, Function, listify(Args));
 run_call(Function,Args) when is_function(Function) -> apply(Function, listify(Args)).
 
 % @spec spawn_linked_node(Cmd, Call) -> {process(), Cmd}
-spawn_unlinked_node(Cmd, Call, Timeout) -> 
+spawn_unlinked_node(Cmd, Call, Timeout) ->
   Port = port_wrapper:wrap(Cmd, Timeout),
   case run_call(Call, Port) of
     ok -> {Port, Cmd};
@@ -208,31 +208,31 @@ erase_node_record(Node, Registry) -> dict:erase(Node, Registry).
 % @spec spawn_nodes(Nodes::[string()], Registerer::fun(), Registry::dict()) -> dict()
 spawn_nodes({Cmd, Num}, Setup, Timeout, Registry) -> spawn_nodes(lists:duplicate(Num, Cmd), Setup, Timeout, Registry);
 spawn_nodes(Nodes, Setup, Timeout, _Registry) when is_list(Nodes) ->
-  F = fun(Cmd) -> spawn( 
-    fun() -> 
+  F = fun(Cmd) -> spawn(
+    fun() ->
       case spawn_unlinked_node(Cmd, Setup, Timeout) of
-        {error, Cmd} -> 
+        {error, Cmd} ->
           error_logger:error_msg("Failed to start node with command: ~n~p~n. Resource manager cannot function in this state, system is idle.~nPossible causes include a crash on startup or a timeout on startup. Make sure nodes can start on this machine!",
                                  [Cmd]);
         {Port, Cmd} -> resource_manager:add_node(Port, Cmd)
       end
-    end ) 
+    end )
   end,
   lists:foreach(F, Nodes).
-  
-restart_dead_node(Node, Setup, Finisher, Timeout, Registry) -> 
-  % Node is dead, so it should be removed everywhere that 
+
+restart_dead_node(Node, Setup, Finisher, Timeout, Registry) ->
+  % Node is dead, so it should be removed everywhere that
   % cares about it, no need to explicitly remove it from
   % pools.
   apply(Finisher, [Node]),
   Cmd = dict:fetch(Node, Registry),
   NegReg = erase_node_record(Node, Registry),
-  spawn_nodes([Cmd], Setup, Timeout, NegReg), 
+  spawn_nodes([Cmd], Setup, Timeout, NegReg),
   NegReg.
 
 % @spec renew_node(proc(), dict()) -> dict()
-cease_node(Node, Finisher, Registry) -> 
-  try 
+cease_node(Node, Finisher, Registry) ->
+  try
     resource_pool:remove(resource_manager:fountain_pool_for_node(Node),Node)
   catch
     _:X -> error_logger:error_msg("Failed to remove node ~p from resource fountain. Reason: ~p", [Node, X])

@@ -17,7 +17,7 @@
 -include("etest/resource_fountain_test.erl").
 -endif.
 
--record(state, {details_pool_dict = dict:new(), 
+-record(state, {details_pool_dict = dict:new(),
                 pool_details_dict = dict:new(),
                 lookup_cache_dict = dict:new()}).
 
@@ -42,18 +42,18 @@ start() ->
 
 % Call to get a pool for a full details spec (often used when offering nodes to the system)
 % @spec pool_for_details(details()) -> pid()
-pool_for_details(Details) -> 
+pool_for_details(Details) ->
   gen_server:call({global, ?MODULE}, {pool_for_details, Details}).
 
 % Lists all detail specs available in the system.
 % @spec details_list() -> [details()]
-details_list() -> 
+details_list() ->
   gen_server:call({global, ?MODULE}, {detail_list}).
 
 % Given details and a call, attempts to find the right resource pool to dispatch to.
-% This uses best_pool_for_details_match then does call checking. 
+% This uses best_pool_for_details_match then does call checking.
 % @spec pool_for_dispatch(call(), details()) -> none | pid()
-pool_for_dispatch(Call, PartialDetails) -> 
+pool_for_dispatch(Call, PartialDetails) ->
   case best_pool_for_details_match(PartialDetails) of
     none -> none;
     Pool -> pool_if_handles_call(Pool, Call)
@@ -61,13 +61,13 @@ pool_for_dispatch(Call, PartialDetails) ->
 
 % Searches for the best ResourcePool match given a partial set of details.
 % @spec best_pool_for_details_match(details()) -> none | pid()
-best_pool_for_details_match(PartialDetails) -> 
+best_pool_for_details_match(PartialDetails) ->
   gen_server:call({global, ?MODULE}, {pool_for_details_match, PartialDetails}).
-  
+
 identity() ->
   gen_server:call({global, ?MODULE}, {identity}).
-  
-remove_pool_if_empty(Pool) -> 
+
+remove_pool_if_empty(Pool) ->
   gen_server:cast({global, ?MODULE}, {remove_pool_if_empty, Pool}).
 
 rate_all_pools(Spec) ->
@@ -99,20 +99,20 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
-handle_call({pool_for_details, Details}, _From, State) -> 
-  {Pool, NewState} = find_make_pool_for_details(Details,State#state.lookup_cache_dict,State), 
+handle_call({pool_for_details, Details}, _From, State) ->
+  {Pool, NewState} = find_make_pool_for_details(Details,State#state.lookup_cache_dict,State),
   {reply, Pool, NewState};
-handle_call({detail_list}, _From, State) -> 
+handle_call({detail_list}, _From, State) ->
   {reply, dict:fetch_keys(State#state.details_pool_dict), State} ;
-handle_call({pool_for_details_match, Details}, _From, State) -> 
-  {{_Score, BestMatch}, NewCache} = 
-    best_details_match_with_caching(Details, 
+handle_call({pool_for_details_match, Details}, _From, State) ->
+  {{_Score, BestMatch}, NewCache} =
+    best_details_match_with_caching(Details,
                                     State#state.details_pool_dict,
                                     State#state.lookup_cache_dict),
   if
-    BestMatch == none -> 
+    BestMatch == none ->
       {reply, none, State} ;
-    true -> 
+    true ->
       {Pool, NewState} = find_make_pool_for_details(BestMatch,NewCache,State),
       {reply, Pool, NewState}
   end;
@@ -130,10 +130,10 @@ handle_call({rate_all_pools, Spec}, _From, State) ->
 %%--------------------------------------------------------------------
 handle_cast({remove_pool_if_empty, Pool}, #state{details_pool_dict=_DetailsPoolDict,
                                                  pool_details_dict=PoolDetailsDict,
-                                                 lookup_cache_dict=_OldCache} = State) when is_pid(Pool) -> 
+                                                 lookup_cache_dict=_OldCache} = State) when is_pid(Pool) ->
   case lists:member(Pool, dict:fetch_keys(PoolDetailsDict)) of
     false -> {noreply, State};                  % Unrecognized pool
-    true  -> 
+    true  ->
       try
         {noreply, remove_pool_helper(resource_pool:is_empty(Pool), Pool, State)}
       catch
@@ -155,13 +155,13 @@ remove_pool_helper(true, Pool, #state{details_pool_dict=DetailsPoolDict,
   case resource_pool:is_logging(Pool) of
     true -> logger:pool_removed(Pool);
     false -> ok
-  end,  
+  end,
   resource_pool:stop(Pool),
   PDetails = dict:fetch(Pool, PoolDetailsDict),
   #state{details_pool_dict=dict:erase(PDetails, DetailsPoolDict),
          pool_details_dict=dict:erase(Pool, PoolDetailsDict),
          lookup_cache_dict=dict:new()}.
-        
+
 %%--------------------------------------------------------------------
 %% Function: handle_info(Info, State) -> {noreply, State} |
 %%                                       {noreply, State, Timeout} |
@@ -199,7 +199,7 @@ find_make_pool_for_details(Details,
                            NewCache,
                            #state{details_pool_dict=DetailsPoolDict,
                                   pool_details_dict=_PoolDetailsDict,
-                                  lookup_cache_dict=_OldCache} = State) -> 
+                                  lookup_cache_dict=_OldCache} = State) ->
   IsKey = dict:is_key(Details,DetailsPoolDict),
   if
     IsKey -> {dict:fetch(Details, DetailsPoolDict), State#state{lookup_cache_dict=NewCache}} ;
@@ -224,14 +224,14 @@ introduce_pool_for_details(Details, Cache, #state{details_pool_dict=DetailsPoolD
 
 % This function iterates through the details given in the dict() and
 % finds the details match with the highest score.
-best_details_match(Ref, Dict) -> 
+best_details_match(Ref, Dict) ->
   Details = dict:fetch_keys(Dict),
-  FoldFunc = fun(I, {ScTB, Val}) -> 
+  FoldFunc = fun(I, {ScTB, Val}) ->
     IScore = scoring:score_details(Ref, I),
     if
-      IScore > ScTB -> 
+      IScore > ScTB ->
         {IScore, I};
-      true -> 
+      true ->
         {ScTB, Val}
     end
   end,
@@ -242,26 +242,26 @@ details_match_list(Ref, Dict) ->
   MapFunc = fun(I) -> {I, scoring:score_details(Ref, I)} end,
   [X || {_Item, Score} = X <- lists:map(MapFunc, Details), Score > 0].
 
-best_details_match_with_caching(Ref, Dict, Cache) -> 
+best_details_match_with_caching(Ref, Dict, Cache) ->
   Key = erlang:phash2(Ref),
   case dict:find(Key, Cache) of
     {ok, Result} -> {Result, Cache};
-    error        -> 
+    error        ->
       Result = best_details_match(Ref, Dict),
       {Result, dict:store(Key, Result, Dict)}
   end.
 
-cache_lookup_results(Search, Result, Dict) -> 
+cache_lookup_results(Search, Result, Dict) ->
   Key = erlang:phash2(Search),
   case dict:find(Key, Dict) of
     {ok, _} -> Dict;
     error   -> dict:store(Key, Result, Dict)
   end.
 
-pool_if_handles_call(Pool, Call) -> 
+pool_if_handles_call(Pool, Call) ->
   PoolApi = resource_pool:api_definition(Pool),
   case lists:keysearch(element(1,Call), 1, PoolApi) of
-    {value, Callspec} -> 
+    {value, Callspec} ->
       {RParams, CParams} = {element(2,Call), element(2, Callspec)},
       if RParams =:= CParams -> Pool;
          true                -> none

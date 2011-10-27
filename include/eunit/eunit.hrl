@@ -60,7 +60,7 @@
 
 %% All macros should be available even if testing is turned off, and
 %% should preferably not require EUnit to be present at runtime.
-%% 
+%%
 %% We must use fun-call wrappers ((fun () -> ... end)()) to avoid
 %% exporting local variables, and furthermore we only use variable names
 %% prefixed with "__", that hopefully will not be bound outside the fun.

@@ -1,5 +1,5 @@
 module Chronic
-  class TimeZone < Tag #:nodoc:    
+  class TimeZone < Tag #:nodoc:
     def self.scan(tokens)
       tokens.each_index do |i|
         if t = self.scan_for_all(tokens[i]) then tokens[i].tag(t); next end

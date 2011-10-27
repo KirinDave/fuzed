@@ -2,14 +2,14 @@ fuzed
     by Dave Fayram        <dfayram at powerset dot com>,
        Tom Preston-Werner <tom at powerset dot com>,
        Abhay Kumar        <abhay at powerset dot com>
-       
+
     Webiste:      http://fuzed.rubyforge.org
     Mailing List: http://groups.google.com/group/fuzed
 
 == Summary
 
 Fuzed is an Erlang-based clustering system designed to let several
-single-threaded processes (which may or may not be reliable) form 
+single-threaded processes (which may or may not be reliable) form
 into a pool which can serve requests to remote hosts. These resources
 need not be homogeneous, Fuzed breaks them up into homogeneous pools
 internally and serves out requests without "crossing the streams"
@@ -24,7 +24,7 @@ to see exactly how it is used internally.
 
 * Erlang: http://www.erlang.org (>= 5.6.1)
 * Ruby: http://www.ruby-lang.org (>= 1.8.6)
-* Ruby Gems: 
+* Ruby Gems:
   * rake: http://rake.rubyforge.org (>= 0.8.1)
   * rack: http://rack.rubyforge.org (>= 0.3.0)
   * erlectricity: http://github.com/mojombo/erlectricity (>= 0.2.1)

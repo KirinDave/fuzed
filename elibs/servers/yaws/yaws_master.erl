@@ -10,7 +10,7 @@ start(IP, Port, DocRoot) ->
   yaws_api:setconf(GC, [[SC]]).
 
 
-yaws_global_configs(IP, Port, DocRoot) -> 
+yaws_global_configs(IP, Port, DocRoot) ->
   Y = yaws_config:yaws_dir(),
   GC = #gconf{yaws_dir = Y,
     ebin_dir = [filename:join([Y, "examples/ebin"])],
@@ -26,7 +26,7 @@ yaws_global_configs(IP, Port, DocRoot) ->
   SC = #sconf{port = Port,
               servername = "master_responder",
               listen = IP,
-              docroot = DocRoot, 
+              docroot = DocRoot,
               appmods = [{"api", master_responder},
                          {"status", status_responder}]},
   {GC,SC}.

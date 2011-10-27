@@ -20,7 +20,7 @@
 
 start_link(Master, UpRetry, DownRetry) ->
   gen_fsm:start_link({local, ?MODULE}, ?MODULE, [Master, UpRetry, DownRetry], []).
-  
+
 
 ping() ->
   gen_fsm:send_event(?MODULE, ping).
@@ -45,8 +45,8 @@ up({ping, Ref}, StateData) when Ref =:= StateData#state.ping_ref ->
   end;
 up({ping, _Ref}, StateData) ->
   {next_state, up, StateData}.
-  
-  
+
+
 down({ping, Ref}, StateData) when Ref =:= StateData#state.ping_ref ->
   case check_master_connection(StateData#state.master) of
     ok ->
@@ -59,8 +59,8 @@ down({ping, Ref}, StateData) when Ref =:= StateData#state.ping_ref ->
   end;
 down({ping, _Ref}, StateData) ->
   {next_state, down, StateData}.
-  
-  
+
+
 rejoin({ping, Ref}, StateData) when Ref =:= StateData#state.ping_ref ->
   case check_master_responsive() of
     ok ->
@@ -78,7 +78,7 @@ rejoin({ping, _Ref}, StateData) ->
   {next_state, rejoin, StateData}.
 
 
-handle_info({'EXIT', Pid, Reason}, _StateName, StateData) -> 
+handle_info({'EXIT', Pid, Reason}, _StateName, StateData) ->
   error_logger:warning_msg("Pid ~p went away because ~p .~n", [Pid, Reason]),
   Ref1 = pinger(500),
   {next_state, down, StateData#state{ping_ref = Ref1}};
@@ -88,23 +88,23 @@ handle_info({nodeup, _Node, _Reason}, StateName, StateData) ->
 
 handle_event(_Event, StateName, StateData) ->
   {next_state, StateName, StateData}.
-  
-  
+
+
 handle_sync_event(_Event, _From, StateName, StateData) ->
   {next_state, StateName, StateData}.
-    
+
 %%--------------------------------------------------------------------
 %% Function: terminate(Reason, State) -> void()
 %%--------------------------------------------------------------------
 terminate(_Reason, _StateName, _StateData) ->
   ok.
-  
+
 %%--------------------------------------------------------------------
 %% Func: code_change(OldVsn, State, Extra) -> {ok, NewState}
 %%--------------------------------------------------------------------
 code_change(_OldVsn, StateName, StateData, _Extra) ->
   {ok, StateName, StateData}.
-  
+
 %%%%%%%%%%%%%%%
 
 pinger(Delay) ->
@@ -116,13 +116,13 @@ check_master_connection(Node) ->
   case net_adm:ping(Node) of
     pong ->
       ok;
-    pang -> 
+    pang ->
       fail
   end.
-  
+
 check_master_responsive() ->
   try resource_fountain:identity() of
-    {ok, _Node} -> 
+    {ok, _Node} ->
       ok;
     _ ->
       fail

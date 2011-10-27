@@ -40,7 +40,7 @@ require 'numerizer/numerizer'
 
 module Chronic
   VERSION = "0.2.2"
-  
+
   def self.debug; false; end
 end
 
@@ -56,8 +56,8 @@ end
 #     # extra_seconds = second > 60 ? second - 60 : 0
 #     # extra_minutes = minute > 59 ? minute - 59 : 0
 #     # extra_hours = hour > 23 ? hour - 23 : 0
-#     # extra_days = day > 
-#     
+#     # extra_days = day >
+#
 #     if month > 12
 #       if month % 12 == 0
 #         year += (month - 12) / 12
@@ -67,7 +67,7 @@ end
 #         month = month % 12
 #       end
 #     end
-#     
+#
 #     base = Time.local(year, month)
 #     puts base
 #     offset = ((day - 1) * 24 * 60 * 60) + (hour * 60 * 60) + (minute * 60) + second
@@ -84,17 +84,17 @@ class Time
       minute += second / 60
       second = second % 60
     end
-    
+
     if minute >= 60
       hour += minute / 60
       minute = minute % 60
     end
-    
+
     if hour >= 24
       day += hour / 24
       hour = hour % 24
     end
-    
+
     # determine if there is a day overflow. this is complicated by our crappy calendar
     # system (non-constant number of days per month)
     day <= 56 || raise("day must be no more than 56 (makes month resolution easier)")
@@ -109,7 +109,7 @@ class Time
         day = day % days_this_month
       end
     end
-    
+
     if month > 12
       if month % 12 == 0
         year += (month - 12) / 12
@@ -119,7 +119,7 @@ class Time
         month = month % 12
       end
     end
-    
+
     Time.local(year, month, day, hour, minute, second)
   end
 end

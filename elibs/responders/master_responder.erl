@@ -19,7 +19,7 @@ out(A) ->
   % compliance with the true JSON-RPC spec
   yaws_jsonrpc:handler_session(A2, {?MODULE, yaws_handler}).
 
-yaws_handler(_State, {call, Method, Value} = _Request, _Session) -> 
+yaws_handler(_State, {call, Method, Value} = _Request, _Session) ->
   Result = rpc_translator(Method,Value),
   {true, 0, hello, Result}.
 %% END Yaws Specific Stuff
@@ -29,12 +29,12 @@ mochiweb_handler(_Req, {call, Method, {struct, TupleList}}) ->
   rpc_translator(Method, TupleList).
 %% END Mochiweb Specific Stuff
 
-rpc_translator(Method, TupleList) -> 
+rpc_translator(Method, TupleList) ->
   Details = k(details, TupleList),
   Parameters = d(details, TupleList),
   ApiSpec = build_api_spec(Method,Parameters),
   case Method of
-    list_available_configurations -> 
+    list_available_configurations ->
       AvailableDetails = resource_fountain:details_list(),
       {result, {array, [jsonify_full_details_list(IndividualDetail) || IndividualDetail <- AvailableDetails]}};
     configuration_for_details ->
@@ -48,12 +48,12 @@ rpc_translator(Method, TupleList) ->
     exception_logging_disable ->
       response_error_logger:set_active(false),
       {result, <<"Logging Disabled.">>};
-    current_pool_traces -> 
+    current_pool_traces ->
       {result, jsonify_full_details_list(logger:list_details_selectors())};
-    start_pool_trace -> 
+    start_pool_trace ->
       logger:enable_logging(Details),
       {result, "Trace added."};
-    stop_pool_trace -> 
+    stop_pool_trace ->
       logger:disable_logging(Details),
       {result, "Trace removed."};
     available_methods ->
@@ -81,13 +81,13 @@ rpc_translator(Method, TupleList) ->
       case node_api:safely_send_call_to_pool(Method, Parameters, ApiSpec, json, Details) of
         {result, R} -> {result, R};
         {error, R}  -> response_error_logger:log_error(
-                         {Details, ApiSpec}, 
+                         {Details, ApiSpec},
                          R),
                        {error, R}
       end
   end.
 
-   
+
 
 % convenience/helper functions
 k(_Key, []) -> "";
@@ -96,7 +96,7 @@ k(Key, List) when is_atom(Key) -> k_halp(Key, List);
 k(Key, List) when is_list(Key) -> K = list_to_atom(Key), k_halp(K,List).
 
 
-k_halp(Key, List) -> 
+k_halp(Key, List) ->
   case lists:keysearch(Key, 1, List)  of
     {value, {Key, Val}} -> Val ;
     Else -> Else
@@ -109,18 +109,18 @@ d(Var, Keylist) -> lists:keydelete(Var, 1, Keylist).
 normalize_details({struct, DetailTuples}) -> [normalize_detail_tuple(X) || X <- DetailTuples].
 
 atom_to_binary(Atom) when is_atom(Atom) -> list_to_binary(atom_to_list(Atom)).
-string_to_bound_int(String) -> 
+string_to_bound_int(String) ->
   case io_lib:fread("~d", String) of
     {ok, [Result], _} -> Result;
     {error, _}        -> 0
   end.
 
 % @spec string_to_version_tuple(string()) -> {int(),int(),int(),int()}
-string_to_version_tuple(String) -> 
+string_to_version_tuple(String) ->
   list_to_4_tup([string_to_bound_int(X) || X <- string:tokens(String, ".-")]).
 
 % @spec process_detail_rval(string()) -> {int(),int(),int(),int()} | binary()
-process_detail_rval(String) -> 
+process_detail_rval(String) ->
   case string:str(String,".") of
     0 -> list_to_binary(String);
     _ -> string_to_version_tuple(String)

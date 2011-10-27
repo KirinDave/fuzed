@@ -51,7 +51,7 @@ remove(Server, Rsrc) ->
 % @spec get(pid(), int()) -> resource() | atom()
 get(Server, Timeout) ->
   gen_server:cast(Server, {get, self()}),
-  receive 
+  receive
     {resource, Rsrc} -> Rsrc
     after Timeout -> nothing
   end.
@@ -63,7 +63,7 @@ get(Server) -> get(Server, infinity).
 
 
 
-% Returns a node to the pool. Will not return a node to the pool 
+% Returns a node to the pool. Will not return a node to the pool
 % that has not been added.
 % @spec refund(pid(), resource()) -> ok | not_a_member
 refund(Server, Node) ->
@@ -87,34 +87,34 @@ list_all_nodes(Server) ->
   [node(X) || X <- list_all(Server)].
 
 % Show the API of the pools inside. [] if pool is empty and has no details
-api_definition(Server) -> 
+api_definition(Server) ->
   gen_server:call(Server, {node_api_definition}).
 
 % Give the details associated with every node in this pool.
 % FIXME
 % spec details(pid()) -> details()
-details(Server) -> 
+details(Server) ->
   gen_server:call(Server, {details}).
 
 % Stop the pool
-stop(Server) -> 
+stop(Server) ->
   gen_server:cast(Server, {stop}).
 
-is_empty(Server) -> 
+is_empty(Server) ->
   length(list_all(Server)) =:= 0.
 
 api_signature(Server) -> gen_server:call(Server, {api_signature}).
 
 is_logging(Server) ->
   gen_server:call(Server, {is_logging}).
-  
+
 set_logging(Server, Logging) ->
   gen_server:call(Server, {set_logging, Logging}).
 
 %
 %% gen_server callbacks
 %
-init([Details]) -> 
+init([Details]) ->
   process_flag(trap_exit, true),
   Logging = logger:is_pool_logging(self(), Details),
   {ok, #state{details=Details, logging=Logging}}.
@@ -130,40 +130,40 @@ init([Details]) ->
 %%--------------------------------------------------------------------
 handle_call({list}, _Source, State) ->
   {reply, State#state.active_nodes, State} ;
-handle_call({list_all}, _Source, State) -> 
+handle_call({list_all}, _Source, State) ->
   {reply, State#state.nodes, State} ;
-handle_call({pending_size}, _Source, State) -> 
+handle_call({pending_size}, _Source, State) ->
   {reply, length(State#state.pending_requests), State} ;
-handle_call({api_signature}, _Source, State) -> 
+handle_call({api_signature}, _Source, State) ->
   {reply, State#state.node_api_signature, State};
-handle_call({flush_pending}, _Source, State) -> 
+handle_call({flush_pending}, _Source, State) ->
   {reply, length(State#state.pending_requests), State#state{pending_requests=queue:new()}} ;
-handle_call({node_api_definition}, _Source, State) -> 
+handle_call({node_api_definition}, _Source, State) ->
   {reply, State#state.node_api_definition, State};
-handle_call({details}, _Source, State) -> 
+handle_call({details}, _Source, State) ->
   {reply, State#state.details, State};
 handle_call({is_logging}, _Source, State) ->
   {reply, State#state.logging, State};
 handle_call({set_logging, Logging}, _Source, State) ->
   {reply, ok, State#state{logging=Logging}};
-handle_call({refund, Resource}, _Source, State) -> 
+handle_call({refund, Resource}, _Source, State) ->
   % Only work if this node is actually a member of the pool
   IsMember = lists:member(Resource, State#state.nodes),
-  if IsMember -> 
+  if IsMember ->
     QueueIsEmpty = queue:is_empty(State#state.pending_requests),
     if QueueIsEmpty ->
          {reply, ok, State#state{active_nodes=lists:append(State#state.active_nodes, [Resource])}} ;
-       true -> 
+       true ->
          {{value, Waiting}, NewQueue} = queue:out(State#state.pending_requests),
          Waiting ! {resource, Resource},
          {reply, ok, State#state{pending_requests=NewQueue}}
     end ;
-    true -> 
+    true ->
     {reply, not_a_member, State}
   end.
-    
-    
-  
+
+
+
 
 %%--------------------------------------------------------------------
 %% Function: handle_cast(Msg, State) -> {noreply, State} |
@@ -171,7 +171,7 @@ handle_call({refund, Resource}, _Source, State) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling cast messages
 %%--------------------------------------------------------------------
-handle_cast({stop}, State) -> 
+handle_cast({stop}, State) ->
   {stop, shutdown, State};
 handle_cast({remove, Rsrc}, State) ->
   if State#state.logging -> logger:node_left(self(), Rsrc);
@@ -180,7 +180,7 @@ handle_cast({remove, Rsrc}, State) ->
   resource_fountain:remove_pool_if_empty(self()),
   {noreply,  State#state{ nodes=lists:delete(Rsrc, State#state.nodes),
                           active_nodes=lists:delete(Rsrc, State#state.active_nodes)}};
-handle_cast({add, Rsrc}, State) -> 
+handle_cast({add, Rsrc}, State) ->
   if State#state.logging -> logger:node_joined(self(), Rsrc);
      true -> ok
   end,
@@ -188,9 +188,9 @@ handle_cast({add, Rsrc}, State) ->
   link(Rsrc),
   {noreply, NewState};
 
-handle_cast({get, For}, State) -> 
-  if 
-    length(State#state.active_nodes) > 0 -> 
+handle_cast({get, For}, State) ->
+  if
+    length(State#state.active_nodes) > 0 ->
       [Head|Rest] = State#state.active_nodes,
       For ! {resource, Head},
       {noreply, State#state{active_nodes=Rest}} ;
@@ -198,14 +198,14 @@ handle_cast({get, For}, State) ->
       Q = queue:in(For, State#state.pending_requests),
       {noreply, State#state{pending_requests=Q}}
   end.
-                          
-handle_info({'EXIT', Pid, _Reason}, State) -> 
+
+handle_info({'EXIT', Pid, _Reason}, State) ->
   if State#state.logging -> logger:node_left(self(), Pid);
      true -> ok
   end,
   {noreply, State#state{ nodes=lists:delete(Pid, State#state.nodes),
                          active_nodes=lists:delete(Pid, State#state.active_nodes)}};
-handle_info(Any,S) -> 
+handle_info(Any,S) ->
   error_logger:info_msg("Got INFO ~p~n", [Any]),
   {noreply, S}.
 
@@ -226,24 +226,24 @@ code_change(_OldVsn, State, _Extra) ->
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
     ok.
-    
+
 %%--------------------------------------------------------------------
 %% Internal API calls
 %%--------------------------------------------------------------------
-insert_matching_node_once(Node, #state{nodes=[]} = State) -> 
+insert_matching_node_once(Node, #state{nodes=[]} = State) ->
   pool_sweeper:watch(self(), Node),
-  State#state{nodes=[Node], active_nodes=[Node], 
+  State#state{nodes=[Node], active_nodes=[Node],
               node_api_signature=node_api:api_signature(Node),
               node_api_definition=node_api:api(Node),
               details=node_api:details(Node)};
-insert_matching_node_once(Node, State) -> 
+insert_matching_node_once(Node, State) ->
   {Nodes, ActiveNodes} = {State#state.nodes, State#state.active_nodes},
   NodeApiSignature = node_api:api_signature(Node),
   if
-    NodeApiSignature =:= State#state.node_api_signature -> 
+    NodeApiSignature =:= State#state.node_api_signature ->
       pool_sweeper:watch(self(), Node),
       State#state{nodes=lists:umerge(Nodes, [Node]),
                   active_nodes=lists:umerge(ActiveNodes, [Node])};
-    true -> 
+    true ->
       State
   end.

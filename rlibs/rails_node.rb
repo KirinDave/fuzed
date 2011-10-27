@@ -11,10 +11,10 @@ require 'fuzed_handler'
 # read command line options
 options = {}
 opts = OptionParser.new do |opts|
-  opts.on("-r", "--rails-root RAILS_ROOT", String) do |x| 
+  opts.on("-r", "--rails-root RAILS_ROOT", String) do |x|
     options[:rails_root] = x
   end
-  opts.on("-t", "--test", "enable test mode") do 
+  opts.on("-t", "--test", "enable test mode") do
     options[:test] = true
   end
   opts.on("-e", "--rails-env ENV", String) do |x|
@@ -40,15 +40,15 @@ class RailsHandler < Chassis
 end
 
 # test mode
-if options[:test]  
-  req = 
-  {:method => :POST, 
-   :http_version => [1, 1], 
-   :querypath => "/main/go", 
-   :querydata => "", 
-   :servername => "testing:8002", 
+if options[:test]
+  req =
+  {:method => :POST,
+   :http_version => [1, 1],
+   :querypath => "/main/go",
+   :querydata => "",
+   :servername => "testing:8002",
    :headers => {:connection => "keep-alive",
-                :accept => "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5", 
+                :accept => "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
                 :host => "localhost:8002",
                 :referer => "http://localhost:8002/main/ready",
                 :user_agent => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3",
@@ -62,7 +62,7 @@ if options[:test]
    :cookies => ["_helloworld_session_id=d3eae987aab3230377abc433b7a8d7c1"],
    :pathinfo => "/Users/tom/dev/fuzed/helloworld/public",
    :postdata => "val=foo"}
-  
+
   p $handler.service(req)
   exit!
 end

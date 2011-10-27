@@ -10,23 +10,23 @@ rails_root = "/Users/tom/dev/git/helloworld"
     w.pid_file = "#{rails_root}/log/mongrel-#{port}.pid"
     w.interval = 5.seconds
     w.log = File.join(rails_root, "log/commands.#{port}.log")
-  
+
     # clean pid files before start if necessary
     w.behavior(:clean_pid_file)
-  
+
     # determine the state on startup
     w.transition(:init, { true => :up, false => :start }) do |on|
       on.condition(:process_running) do |c|
         c.running = true
       end
     end
-  
+
     # determine when process has finished starting
     w.transition([:start, :restart], :up) do |on|
       on.condition(:process_running) do |c|
         c.running = true
       end
-    
+
       # failsafe
       on.condition(:tries) do |c|
         c.times = 8
@@ -39,7 +39,7 @@ rails_root = "/Users/tom/dev/git/helloworld"
     w.transition(:up, :start) do |on|
       on.condition(:process_exits)
     end
-  
+
     # restart if memory or cpu is too high
     w.transition(:up, :restart) do |on|
       on.condition(:memory_usage) do |c|
@@ -47,13 +47,13 @@ rails_root = "/Users/tom/dev/git/helloworld"
         c.above = 50.megabytes
         c.times = [3, 5]
       end
-    
+
       on.condition(:cpu_usage) do |c|
         c.interval = 10
         c.above = 10.percent
         c.times = 5
       end
-    
+
       on.condition(:http_response_code) do |c|
         c.host = 'localhost'
         c.port = port
@@ -63,7 +63,7 @@ rails_root = "/Users/tom/dev/git/helloworld"
         c.times = [3, 5]
       end
     end
-  
+
     # lifecycle
     w.lifecycle do |on|
       on.condition(:flapping) do |c|

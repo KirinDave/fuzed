@@ -7,7 +7,7 @@ OptionParser.new do |opts|
   opts.on("-t", "--target TARGETNODE", "Node to target, defaults to your cluster's master or fuzed-dev") do |arg|
     options[:target] = arg
   end
-  
+
   opts.on("-m", "--master TARGETNODE", "Master node for cookie generation. Defaults to your target.") do |arg|
     options[:master] = arg
   end

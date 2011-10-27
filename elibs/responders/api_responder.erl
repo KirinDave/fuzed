@@ -17,7 +17,7 @@ yaws_extract_details(Arg) ->
     false -> [] ;
     {value, {_, V}} -> V
   end.
-  
+
 yaws_handler(_State, {call, Method, Value} = _Request, _Session) ->
   Result = rpc_translator(Method,Value),
   {true, 0, hello, Result}.
@@ -43,6 +43,6 @@ rpc_translator(Method, TupleList) ->
       response_error_logger:log_error({Details, ApiSpec}, Result),
       {error, Result}
   end.
-    
+
 build_api_spec(Method,Params) ->
   {Method, list_to_tuple(lists:sort([X || {X, _} <- Params]))}.

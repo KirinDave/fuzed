@@ -9,7 +9,7 @@ def finish_spec(yml_spec, autoconf)
   yml_spec["master_host"] ||= autoconf.master_hostname
   yml_spec["master_node"] ||= autoconf.master_nodename
   yml_spec["heartbeat"] = false if yml_spec["heartbeat"].nil?
-  
+
   return yml_spec
 end
 
@@ -24,14 +24,14 @@ def client_spec_2_cmdline(yml_spec, autoconf)
   cmd_set << "-c "  + yml_spec["clone"].to_s if yml_spec["clone"]
   cmd_set << "-s "  + "'" + yml_spec["spec"] + "'" if yml_spec["spec"]
   cmd_set << "-h" if yml_spec["heartbeat"]
-  
+
   return cmd_set.join(" ")
 end
 
 def read_directory_configs(path)
   names = []
   configs = []
-  
+
   Dir.new(path).each do |f|
     if f =~ /\.yml$/i
       YAML::load(File.read(File.join(path, f))).each do |conf|
@@ -43,7 +43,7 @@ def read_directory_configs(path)
       end
     end
   end
-  
+
   configs
 end
 
@@ -66,7 +66,7 @@ begin
   configs = read_configs(fuzed_bootpath)
   commands += configs.map {|x| client_spec_2_cmdline(x, environment)}
   commands.each {|x| puts x ; `#{x}` ; sleep(1) }
-rescue 
+rescue
   puts "Failed to boot FUZED during configuration stage.\nError:#{$!}"
   puts $!.backtrace.join("\n")
   exit(1)

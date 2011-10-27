@@ -29,13 +29,13 @@ yaws_process_arg(Arg, SC) ->
    {https, determine_ssl(SC)},
    {remote_addr, yaws_prepare(remote_addr, Arg)},
    {querypath, yaws_prepare(querypath, Arg)},
-   {querydata, prep(Arg#arg.querydata)}, 
+   {querydata, prep(Arg#arg.querydata)},
    {servername, prep(SC#sconf.servername)},
    {headers, {struct, yaws_prepare_headers(Headers)}},
    {cookies, {array, lists:map(fun(X) -> prep(X) end, Headers#headers.cookie)}},
    {pathinfo, prep(SC#sconf.docroot)},
    {postdata, Arg#arg.clidata}].
-  
+
 yaws_prepare(method, Arg) ->
   {http_request, Method, {_Type, _Path}, _Version} = Arg#arg.req,
   Method;
@@ -52,7 +52,7 @@ yaws_prepare(remote_addr, Arg) ->
   catch
     _:_ -> ok
   end.
-  
+
 get_remote_addr(Socket) ->
   Peer = inet:peername(Socket),
   case Peer of
@@ -85,8 +85,8 @@ yaws_prepare_headers(Headers) ->
                    {content_encoding, prep(Headers#headers.content_encoding)},
                    {authorization, prep_authorization(Headers#headers.authorization)},
                    {transfer_encoding, prep(Headers#headers.transfer_encoding)}],
-  SpecialHeaders = 
-    lists:map(fun({http_header, _Len, Name, _, Value}) -> {prep(Name), prep(Value)} end, 
+  SpecialHeaders =
+    lists:map(fun({http_header, _Len, Name, _, Value}) -> {prep(Name), prep(Value)} end,
               Headers#headers.other),
   [{Name, Res} || {Name, Res} <- NormalHeaders, Res /= undefined] ++ SpecialHeaders.
 %% END Yaws Specific Stuff
@@ -142,7 +142,7 @@ mochiweb_parse_request(Req, DocRoot) ->
   {_, QueryString, _} = mochiweb_util:urlsplit_path(RawPath),
   Cookies = [list_to_binary(lists:flatten(Key ++ "=" ++ Value)) || {Key, Value} <- Req:parse_cookie()],
   Headers = mochiweb_prepare_headers(mochiweb_headers:to_list(Req:get(headers))),
-  
+
   [{method, Req:get(method)},
    {http_version, {array, tuple_to_list(Req:get(version))}},
    {querypath, list_to_binary(RawPath)},
@@ -171,7 +171,7 @@ determine_ssl(SC) ->
     undefined -> 0;
     _Else -> 1
   end.
-  
+
 execute_request(Pool, Parameters) ->
   case node_api:safely_send_call_to_pool_no_lookup(handle_request, Parameters, pure, Pool) of
     {result, Result} -> result_processor(Result);

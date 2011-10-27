@@ -22,47 +22,47 @@ end
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed command [options]"
-  
+
   opts.on("-z HOSTNAME", "--magic HOSTNAME", "Set smart details based off of a hostname") do |n|
     options[:master_name] = "master@#{n}"
   end
-  
+
   opts.on("-n NAME", "--name NAME", "Node name") do |n|
     options[:name] = n
   end
-  
+
   opts.on("-f FUZEDFILE", "--fuzedfile FILENAME", "FUZED spec file to use to serve nodes") do |n|
     options[:fuzedfile] = n
   end
-  
+
   opts.on("-m NAME", "--master NAME", "Master node name") do |n|
     options[:master_name] = n
   end
-  
+
   opts.on("-s", "--spec SPECSTRING", "||-separated list of arguments to apply to your FUZED node") do |n|
     options[:spec] = n
   end
-  
+
   opts.on("-c NUMNODES", "--clone NUMTIMES", "Number of clones of your spec to make") do |n|
     options[:num_nodes] = n
   end
-  
+
   opts.on("-t", "--tags TAGSTRING", "Comma-separated list of tags to apply to any nodes started") do |n|
     options[:tags] = n
   end
-  
+
   opts.on("-d", "--detached", "Run as a daemon") do
     options[:detached] = true
   end
-  
+
   opts.on("-p", "--production", "Classify these nodes as production") do
     options[:production] = true
   end
-  
+
   opts.on("-r", "--roles ROLES", "Extra roles (use -p for production role)") do |v|
     options[:roles] = v
   end
-  
+
   opts.on("-i", "--inet", "Load code over internet via master code server") do
     options[:inet] = true
   end
@@ -71,7 +71,7 @@ OptionParser.new do |opts|
     $stderr.puts "WARNING! Heartbeats not supported with this build!"
   end
 end.parse!
-  
+
 command = ARGV[0]
 
 detached = options[:detached] ? '-detached' : ''
@@ -85,14 +85,14 @@ end
 spec = %{[} + create_spec_list(options).map {|x| %{"#{x}"}}.join(",") + %{]}
 num_nodes = options[:num_nodes] || 1
 
-inet = 
+inet =
 if options[:inet]
   # Ruby has an awesome bug that makes me have to shell out to it, I'm not insane, I swear
   ip = `ruby -e "require 'resolv'; puts Resolv.getaddress('#{master.split('@').last}') rescue ''"`.chomp
   ip = `ruby -e "require 'resolv'; puts Resolv.getaddress('#{master.split('@').last.split('.').first}') rescue ''"`.chomp if ip == ''
-  
+
   abort("Could not resolve #{master.split('@').last} to an IP address") unless ip
-  
+
   " -loader inet -hosts '#{ip}'"
 else
   ""

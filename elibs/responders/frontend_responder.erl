@@ -14,7 +14,7 @@ provide_pool() ->
 %% provide_pool(A, _GC, _SC) ->
 %%   % I confess this approach is lazy, but I don't think it's slow.
 %%   case application:get_env(fuzed_frontend, current_pool) of
-%%     undefined -> 
+%%     undefined ->
 %%       Pool = lookup_and_cache_pool(),
 %%       {Pool, A};
 %%     {ok, Pool} ->
@@ -25,7 +25,7 @@ provide_pool() ->
 %%                  case is_remote_process_alive(Pool) of
 %%                    true ->
 %%                      {Pool, A};
-%%                    false -> 
+%%                    false ->
 %%                      {lookup_and_cache_pool(), A}
 %%                  end
 %%              end
@@ -34,7 +34,7 @@ provide_pool() ->
 %% lookup_and_cache_pool() ->
 %%   Pool = resource_fountain:best_pool_for_details_match(details()),
 %%   case Pool of
-%%     none -> 
+%%     none ->
 %%       application:set_env(fuzed_frontend, current_pool, undefined),
 %%       none;
 %%     X ->

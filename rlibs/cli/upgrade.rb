@@ -2,24 +2,24 @@ options = { :kind => :all, :name => "funtimes" }
 
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed upgrade [options]"
-  
+
   opts.on("-n NAME", "--name NAME", "Node name") do |n|
     options[:name] = n
   end
-  
+
   opts.on("-m NAME", "--master NAME", "Master node name") do |n|
     options[:master_name] = n
   end
-  
+
   opts.on("-r", "--ruby_only", "Only reload Ruby segment") do |n|
     options[:kind] = :ruby
   end
-  
+
   opts.on("-e", "--erlang_only", "Only reload Erlang segment") do |n|
     options[:kind] = :erlang
   end
 end.parse!
-  
+
 command = ARGV[0]
 
 name = options[:name]

@@ -11,7 +11,7 @@ class FakeHandler < Chassis
   handle(:echo, :textsy, :options) do |args|
     "You said: " + args[:textsy] + ' ' + args[:options].inspect
   end
-  
+
   handle(:killer) do |args|
     exit
   end
@@ -19,7 +19,7 @@ class FakeHandler < Chassis
   handle(:woot) do |args|
     "Boots are delightful."
   end
-  
+
   handle(:mangler) do |args|
     return_and_exit("Let slip the dogs of war")
   end

@@ -1,13 +1,13 @@
 %%%-------------------------------------------------------------------
 %%% File    : /Users/dfayram/Projects/new_fuzed/elibs/fuzed_code_monitor.erl
-%%% Author  : 
+%%% Author  :
 %%%-------------------------------------------------------------------
 -module(fuzed_code_monitor).
 -behaviour(gen_server).
 
 %% API
 -export([modified_modules/0, reload_modified_modules/0,reload_modified_modules_for_all_nodes/0,
-         reload_specified_modules/1, reload_ruby_code/0, reload_ruby_code_for_all_nodes/0, 
+         reload_specified_modules/1, reload_ruby_code/0, reload_ruby_code_for_all_nodes/0,
          global_upgrade/1]).
 
 %% gen_server callbacks
@@ -27,24 +27,24 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 start() ->
     gen_server:start({local, ?MODULE}, ?MODULE, [], []).
-    
+
 %%====================================================================
 %% gen_server callbacks & API
 %%====================================================================
 
-modified_modules() -> 
+modified_modules() ->
   gen_server:call(?MODULE, modified_modules).
 
-reload_modified_modules() -> 
+reload_modified_modules() ->
   gen_server:cast(?MODULE, reset).
 
-reload_specified_modules(Modules) -> 
+reload_specified_modules(Modules) ->
   spawn(fun() -> [force_reload_module(M) || M <- Modules] end),
   ok.
-  
-reload_ruby_code() -> 
+
+reload_ruby_code() ->
   spawn(
-    fun() -> 
+    fun() ->
       try resource_manager:cycle()
       catch
         error:_ -> ok
@@ -53,7 +53,7 @@ reload_ruby_code() ->
   ),
   ok.
 
-reload_ruby_code_for_all_nodes() -> 
+reload_ruby_code_for_all_nodes() ->
   reload_ruby_code(),
   [rpc:call(Node, ?MODULE, reload_ruby_code, []) || Node <- nodes()],
   nodes().
@@ -68,7 +68,7 @@ global_upgrade(ruby) -> reload_ruby_code_for_all_nodes();
 global_upgrade(erlang) -> reload_modified_modules_for_all_nodes();
 global_upgrade(all) -> global_upgrade(erlang), global_upgrade(ruby);
 global_upgrade(_) -> global_upgrade(all).
-  
+
 
 %%--------------------------------------------------------------------
 %% Function: init(Args) -> {ok, State} |
@@ -89,7 +89,7 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
-handle_call(modified_modules, _From, State) -> 
+handle_call(modified_modules, _From, State) ->
     {reply, local_modified_modules(), State};
 handle_call(_Request, _From, State) ->
     Reply = ok,
@@ -101,8 +101,8 @@ handle_call(_Request, _From, State) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling cast messages
 %%--------------------------------------------------------------------
-handle_cast(reset, State) -> 
-  spawn(fun() -> timer:sleep(1000), [force_reload_module(M) || M <- mm()] end), 
+handle_cast(reset, State) ->
+  spawn(fun() -> timer:sleep(1000), [force_reload_module(M) || M <- mm()] end),
   {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -183,6 +183,6 @@ find_module_file(Path) ->
       end
   end.
 
-force_reload_module(Module) -> 
+force_reload_module(Module) ->
   code:purge(Module),
   code:load_file(Module).
