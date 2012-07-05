@@ -9,14 +9,14 @@ start() ->
   spawn(fun() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, _Arg = [])
   end).
-  
+
 start_shell() ->
   {ok, Pid} = supervisor:start_link({local, ?MODULE}, ?MODULE, _Arg = []),
   unlink(Pid).
-  
+
 start_link(Args) ->
   supervisor:start_link({local, ?MODULE}, ?MODULE, Args).
-  
+
 
 init([]) ->
   case application:get_env(pidfile) of
@@ -25,7 +25,7 @@ init([]) ->
       ok = file:write_file(Location, list_to_binary(Pid));
     undefined -> ok
   end,
-  
+
   Master = application:get_env(master),
   case Master of
     {ok, MasterNode} ->
@@ -33,7 +33,7 @@ init([]) ->
     undefined ->
       MasterNode = node()
   end,
-  
+
   case application:get_env(conf) of
     {ok, Conf} ->
       yaws_frontend:start(Conf);
@@ -45,13 +45,13 @@ init([]) ->
       ResponderModule = figure_responder(),
       FrameworkModule = figure_framework_module(),
       AppModSpecs = process_appmods(application:get_env(appmods)),
-  
+
       case application:get_env(http_server) of
         {ok, mochiweb} -> mochiweb_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs);
         _ -> yaws_frontend:start(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs)
       end
   end,
-  
+
   {ok, {{one_for_one, 10, 600},
         [{master_beater,
           {master_beater, start_link, [MasterNode, ?GLOBAL_TIMEOUT, ?SLEEP_CYCLE]},
@@ -75,15 +75,15 @@ ssl_config() ->
     {_Any2, undefined} -> none;
     _Else -> {ssl, Key, Cert}
   end.
-  
+
 % Helper functions
 
-ping_master(Node) -> 
+ping_master(Node) ->
   case net_adm:ping(Node) of
-    pong -> 
+    pong ->
       timer:sleep(?SLEEP_CYCLE),
       ok;
-    pang -> 
+    pang ->
       error_logger:info_msg("Master node ~p not available. Retrying in 5 seconds.~n", [Node]),
       timer:sleep(?SLEEP_CYCLE),
       ping_master(Node)
@@ -95,12 +95,12 @@ figure_responder() ->
       Module;
     undefined -> frontend_responder
   end.
-  
+
 figure_framework_module() ->
   {ok, Framework} = application:get_env(framework),
   FrameworkString = atom_to_list(Framework),
   FrameworkModuleString = FrameworkString ++ "_framework",
   list_to_atom(FrameworkModuleString).
-      
+
 process_appmods(undefined) -> [];
 process_appmods({ok, V}) -> V.

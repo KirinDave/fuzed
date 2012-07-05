@@ -7,7 +7,7 @@ start(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, AppModSpecs) ->
   application:set_env(yaws, embedded, true),
   application:start(yaws),
   yaws_api:setconf(GC, [[SC]]).
-  
+
 start(Conf) ->
   Env = #env{conf = {file, Conf},
              debug = false,
@@ -30,9 +30,9 @@ yaws_gc() ->
               trace = false,
               logdir = "./log",
               cache_refresh_secs = 30,
-              flags = ?GC_AUTH_LOG bor 
-                      ?GC_COPY_ERRLOG bor 
-                      ?GC_FAIL_ON_BIND_ERR bor 
+              flags = ?GC_AUTH_LOG bor
+                      ?GC_COPY_ERRLOG bor
+                      ?GC_FAIL_ON_BIND_ERR bor
                       ?GC_PICK_FIRST_VIRTHOST_ON_NOMATCH,
               yaws = "Yaws " ++ yaws_generated:version(),
               id = genericID
@@ -46,7 +46,7 @@ yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, Ap
   SC = #sconf{port = Port,
               servername = atom_to_list(ResponderModule),
               listen = IP,
-              docroot = DocRoot, 
+              docroot = DocRoot,
               errormod_404 = ResponderModule,
               errormod_crash = FrameworkModule,
               appmods = AppModModules,
@@ -57,13 +57,13 @@ yaws_global_configs(IP, Port, DocRoot, SSL, ResponderModule, FrameworkModule, Ap
       SC2 = SC#sconf{ssl = #ssl{keyfile = Key, certfile = Cert}};
     none ->
       SC2 = SC
-  end,  
+  end,
   {GC,SC2}.
 
 % Triples: {Path, module, Role}
 prepare_appmod_data(AppMods) when is_list(AppMods) ->
-  lists:foldl(fun({Path, Module, Role}, {AMMM, Opaques}) -> 
-                    {[{to_string(Path), Module}|AMMM], 
+  lists:foldl(fun({Path, Module, Role}, {AMMM, Opaques}) ->
+                    {[{to_string(Path), Module}|AMMM],
                      [{{to_string(Path), Module}, [{<<"roles">>, [to_binary(Role)]}]}|Opaques]}
                 end,
                 {[], []},

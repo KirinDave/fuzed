@@ -87,5 +87,5 @@ write_error({Details, ApiReq}, ErrorStr, FileHandle) ->
 now_string() ->
   {{_, Month, Day}, {Hour, Minute, Second}} = erlang:localtime(),
   io_lib:format("~p-~p (~p:~p:~p)", [Month, Day, Hour, Minute, Second]).
-            
+
 

@@ -37,7 +37,7 @@ task :test => [:default] do
   env_peek = ENV['MOD'] || ENV['MODS'] || ENV['MODULE'] || ENV['MODULES']
   if env_peek
     mods = env_peek.split(",")
-  else 
+  else
     mods = Dir["etest/*_test.erl"].map { |x| x.match(/etest\/(.*)_test.erl/)[1] }
   end
   mod_directives = mods.map {|m| "-run #{m} test"}.join(" ")

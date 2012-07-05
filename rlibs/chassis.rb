@@ -7,7 +7,7 @@ class Chassis
   class << self
     attr_accessor :signatures, :node_kind, :pkgs, :tags, :roles, :extra_config, :exception_handler, :exit_after_current_dispatch
   end
-  
+
   self.signatures = {}
   self.node_kind = nil
   self.pkgs = []
@@ -16,7 +16,7 @@ class Chassis
   self.extra_config = nil
   self.exception_handler = nil
   self.exit_after_current_dispatch = false
-  
+
   # Define a handler method
   #   +method+ is the Symbol method name
   #   +names+ is a list of required parameters
@@ -24,17 +24,17 @@ class Chassis
   # Returns nothing
   def self.handle(method, *names, &block)
     Chassis.signatures[method] = names.sort { |a, b| a.to_s <=> b.to_s }
-    
+
     define_method("handle_proxy_#{method}", &block)
-    
+
     define_method("handle_#{method}".to_sym) do |iargs|
       args = self.convert_args(iargs)
       self.verify_args(method, args)
-      
+
       self.send("handle_proxy_#{method}", args)
     end
   end
-  
+
   # Specify this handler's kind
   #   +name+ is a String identifier
   #
@@ -42,21 +42,21 @@ class Chassis
   def self.kind(name)
     Chassis.node_kind = name
   end
-  
+
   # Specify details that will be used for matching incoming requests
   #   +details+ is a Hash of primitives
   #
   # Returns nothing
   def self.details(details)
     raise("details() has already been called") unless Chassis.pkgs.empty?
-    
+
     Chassis.pkgs = details.to_a
   end
-  
+
   def self.config(&block)
     Chassis.extra_config = block.call
   end
-  
+
   # Specify a block that takes an Exception as its single argument
   # to be called when an exception is not handled inside a handler
   #   +block+ is the block to execute
@@ -71,7 +71,7 @@ class Chassis
   def self.handle_exception(&block)
     Chassis.exception_handler = block
   end
-  
+
   # Limit version number to 9999 max
   #   +version+ is the verstion number to limit
   #
@@ -79,7 +79,7 @@ class Chassis
   def self.limit_version(version)
     version.map { |x| x > 9999 ? 9999 : x }
   end
-  
+
   # Convert Erlang-style args to Ruby-style args
   #   +iargs+ is the Erlang-style arg structure
   #
@@ -91,7 +91,7 @@ class Chassis
     end
     args
   end
-  
+
   # Helper for +convert_args+. Recursively converts a node in
   # Erlang-style to a node in Ruby-style
   #  +node+ is the Erlang-style node
@@ -99,7 +99,7 @@ class Chassis
   # Returns String|Symbol|Hash|Array
   # Raises if an invalid node is encountered
   def convert_args_node(node)
-    if node.kind_of?(String) || node.kind_of?(Symbol) || node.kind_of?(Numeric) || 
+    if node.kind_of?(String) || node.kind_of?(Symbol) || node.kind_of?(Numeric) ||
        node.kind_of?(TrueClass) || node.kind_of?(FalseClass) || node.kind_of?(NilClass)
       node
     elsif node.instance_of?(Array)
@@ -118,7 +118,7 @@ class Chassis
       raise "Invalid node, must be an instance of String, Symbol, Numeric, True, False, Nil, or Array: #{node.inspect} (#{node.class.inspect})"
     end
   end
-  
+
   # Verify that the required args are met for the given method call
   #   +method+ is the Symbol representing the method name
   #   +args+ is the Ruby-style args to check
@@ -129,14 +129,14 @@ class Chassis
     matches = Chassis.signatures[method].select do |key|
       args[key]
     end
-    
+
     misses = Chassis.signatures[method] - matches
-    
+
     unless misses.empty?
       raise "Required arguments missing for '#{method}': #{misses.join(", ")}"
     end
   end
-  
+
   # Dispatch a method by its name
   #   +method+ is the Symbol representing the method name
   #   +retype+ is the response type Symbol (:json | :pure)
@@ -169,7 +169,7 @@ class Chassis
       [:error, e.message + "\n\n" + e.backtrace.join("\n")]
     end
   end
-  
+
   # The API structure of this Chassis, sorted alphabetically by method name
   #
   # Returns Array (Erlang-style nested structure)
@@ -180,7 +180,7 @@ class Chassis
     api = Chassis.signatures.to_a.sort { |a, b| a.first.to_s <=> b.first.to_s }
     api
   end
-  
+
   # Construct the config (aka details)
   #
   # Returns Array (config)
@@ -192,7 +192,7 @@ class Chassis
     details << Chassis.extra_config if Chassis.extra_config
     details
   end
-  
+
   # Start the Erlectricity recieve/respond loop
   #
   # Never returns
@@ -206,32 +206,32 @@ class Chassis
         exit if Chassis.exit_after_current_dispatch
         f.receive_loop
       end
-      
+
       f.when(:config) do
         f.send! [:result, self.config]
         f.receive_loop
       end
-      
+
       f.when(:api) do
         f.send! [:result, self.api]
         f.receive_loop
       end
-      
+
       f.when(:ping) do
         f.send! :pong
         f.receive_loop
       end
-      
+
       f.when(:quit) do
         exit(0)
       end
     end
   end
-  
+
   def self.pull_cli_args
     Chassis.tags = []
     Chassis.roles = []
-    
+
     # parse the options
     opts = OptionParser.new
     opts.on("--tags x,y,z", Array) do |val|
@@ -241,44 +241,44 @@ class Chassis
       Chassis.roles = val
     end
     opts.parse(ARGV)
-    
+
     # grab the extras
     extras = []
     dashdash = ARGV.index('--')
     if dashdash
       extras = ARGV[(dashdash + 1)..-1]
     end
-    
+
     # ramrod the extras into ARGV
     ARGV.clear
     ARGV.concat(extras)
   end
-  
+
   def self.start
     # get any handlers
     handlers = []
     ObjectSpace.each_object(Class) do |o|
       handlers << o if o < Chassis
     end
-    
+
     if $!
       raise $!
     end
-    
+
     # check that one and only one exist
     if handlers.size != 1
       raise "There must be exactly one class that extends Chassis, but there are #{handlers.size}"
     end
-    
+
     # check that a kind has been set
     unless Chassis.node_kind
       raise "A kind must be specified"
     end
-    
+
     h = handlers.first.new
     h.start
   end
-  
+
   def return_and_exit(data)
     Chassis.exit_after_current_dispatch = true
     data
@@ -391,178 +391,178 @@ Chassis.pull_cli_args
 if $0 == __FILE__
   require 'test/unit'
   require 'mocha'
-  
+
   class Chassis
     def self.start
       nil
     end
   end
-  
+
   class Awesome < Chassis
     kind "awesome"
-    
+
     details "failboat" => "sinking"
-    
+
     config do
       ["grammar", "/tmp/awesome.lfg"]
     end
-    
+
     handle(:alpha) do
       'alpha'
     end
-    
+
     handle(:beta, :foo, :bar) do |args|
       helper(args[:foo], args[:bar])
     end
-    
+
     handle(:gamma) do
       raise "once more unto the breach"
     end
-    
+
     handle(:delta) do
       exit
     end
-    
+
     handle(:epsilon) do
       return_and_exit('foo')
     end
-    
+
     handle_exception do |e|
       raise "EBORKD"
     end
-    
+
     def helper(x, y)
       "#{x}=#{y}"
     end
   end
-  
+
   class TestChassis < Test::Unit::TestCase
     def setup
       @a = Awesome.new
     end
-    
+
     # signatures
-    
+
     def test_signatures_should_match_declaration
       sigs = {:gamma=>[], :alpha=>[], :delta=>[], :beta=>[:bar, :foo], :epsilon=>[]}
       assert_equal sigs, Chassis.signatures
     end
-    
+
     # handler meta
-    
+
     def test_handler_methods_should_exist
       assert @a.respond_to?(:handle_alpha)
       assert @a.respond_to?(:handle_beta)
     end
-    
+
     def test_handler_methods_arity_should_always_be_one
       assert 1, @a.method(:handle_alpha).arity
       assert 1, @a.method(:handle_beta).arity
     end
-    
+
     # convert_args
-    
+
     def test_convert_args_should_convert_top_level_array_to_hash
       i = [[:foo, 'bar'], [:qux, 'quux']]
       o = {'foo' => 'bar', 'qux' => 'quux'}
       assert_equal o, @a.convert_args(i)
-      
+
       i = [['foo', 'bar'], ['qux', 'quux']]
       o = {'foo' => 'bar', 'qux' => 'quux'}
       assert_equal o, @a.convert_args(i)
     end
-    
+
     def test_convert_args_should_convert_structs_to_indifferent_hashes
       i = [[:foo, 'bar'], [:baz, [:struct, [[:qux, 'quux']]]]]
       o = {'foo' => 'bar', 'baz' => {'qux' => 'quux'}}
       assert_equal o, @a.convert_args(i)
-      
+
       i = [[:foo, 'bar'], [:baz, [:struct, [[:qux, [:struct, [[:a, 'b']]]]]]]]
       o = {'foo' => 'bar', 'baz' => {'qux' => {'a' => 'b'}}}
       assert_equal o, @a.convert_args(i)
     end
-    
+
     def test_convert_args_should_make_all_hashes_indifferent
       i = [[:foo, 'bar'], [:baz, [:struct, [[:qux, 'quux']]]]]
       # o = {'foo' => 'bar', 'baz' => {'qux' => 'quux'}}
       o = @a.convert_args(i)
       assert_equal 'bar', o[:foo]
       assert_equal 'bar', o['foo']
-      
+
       assert_equal 'quux', o[:baz][:qux]
       assert_equal 'quux', o['baz']['qux']
     end
-    
+
     def test_convert_args_should_convert_arrays_to_arrays
       i = [[:foo, 'bar'], [:baz, [:array, [:qux, 'quux']]]]
       o = {'foo' => 'bar', 'baz' => [:qux, 'quux']}
       assert_equal o, @a.convert_args(i)
-      
+
       i = [[:foo, 'bar'], [:baz, [:array, [:qux, [:array, [:a, 'b']]]]]]
       o = {'foo' => 'bar', 'baz' => [:qux, [:a, 'b']]}
       assert_equal o, @a.convert_args(i)
     end
-    
+
     # convert_args_node
-    
+
     def test_convert_node_should_be_identity_for_strings
       assert_equal 'foo', @a.convert_args_node('foo')
     end
-    
+
     def test_convert_node_should_be_identity_for_symbol
       assert_equal :foo, @a.convert_args_node(:foo)
     end
-    
+
     def test_convert_node_should_be_identity_for_true
       assert_equal true, @a.convert_args_node(true)
     end
-    
+
     def test_convert_node_should_be_identity_for_false
       assert_equal false, @a.convert_args_node(false)
     end
-    
+
     def test_convert_node_should_be_identity_for_nil
       assert_equal nil, @a.convert_args_node(nil)
     end
-    
+
     def test_convert_node_should_be_identity_for_numeric
       assert_equal 1, @a.convert_args_node(1)
       assert_equal 1.0, @a.convert_args_node(1.0)
       assert_equal 9999999999999999999, @a.convert_args_node(9999999999999999999)
     end
-    
+
     def test_convert_node_should_convert_array
       assert_equal [1], @a.convert_args_node([:array, [1]])
       assert_equal [1, 2], @a.convert_args_node([:array, [1, 2]])
       assert_equal [1, 2, 3], @a.convert_args_node([:array, [1, 2, 3]])
     end
-    
+
     def test_convert_node_should_convert_nested_array
       assert_equal [[1]], @a.convert_args_node([:array, [[:array, [1]]]])
     end
-    
+
     def test_convert_node_should_convert_struct_to_hash
       i = [:struct, [[:foo, 'foo']]]
       o = {"foo" => 'foo'}
       assert_equal o, @a.convert_args_node(i)
     end
-    
+
     # handlers
-    
+
     def test_alpha_nominal
       assert_equal 'alpha', @a.handle_alpha([])
     end
-    
+
     def test_beta_nominal
       assert_equal 'foo=bar', @a.handle_beta([[:foo, 'foo'], [:bar, 'bar']])
     end
-    
+
     def test_beta_with_missing_required_arg_should_raise
       assert_raise RuntimeError do
         @a.handle_beta([[:foo, 'foo']])
       end
     end
-    
+
     def test_epsilon_should_set_exit_after_current_dispatch
       assert_equal false, Chassis.exit_after_current_dispatch
       @a.dispatch(:epsilon, :json, [])
@@ -572,7 +572,7 @@ if $0 == __FILE__
     ensure
       Chassis.exit_after_current_dispatch = false
     end
-    
+
     def test_epsilon_should_respond_with_last_result
       res = @a.dispatch(:epsilon, :json, [])
       assert_equal [:last_result, [:raw, "\"foo\""]], res
@@ -581,64 +581,64 @@ if $0 == __FILE__
     ensure
       Chassis.exit_after_current_dispatch = false
     end
-    
+
     # api
-    
+
     def test_api
       assert_equal [[:alpha, []], [:beta, [:bar, :foo]], [:delta, []], [:epsilon, []], [:gamma, []]], @a.api
     end
-    
+
     # kind
-    
+
     def test_kind
       assert_equal "awesome", Chassis.node_kind
     end
-    
+
     # packages
-    
+
     def test_packages
       packages = [["failboat", "sinking"]]
       assert_equal packages, Chassis.pkgs
     end
-    
+
     # handle_exception
-    
+
     def test_handle_exception
       @a.dispatch(:gamma, :json, [])
     rescue => e
       assert_equal "EBORKD", e.message
     end
-    
+
     # pull_cli_args
-    
+
     def test_pull_cli_args
       ARGV.clear
       ARGV.concat(["--tags=foo,bar", "--", "--tags=baz,qux"])
-      
+
       Chassis.pull_cli_args
-      
+
       assert_equal ["foo", "bar"], Chassis.tags
       assert_equal ["--tags=baz,qux"], ARGV
     end
-    
+
     # config
-    
+
     def test_config
       ARGV.clear
       ARGV.concat(["--tags=foo,bar", "--roles=production", "--", "--tags=baz,qux"])
       Chassis.pull_cli_args
-      
+
       config = [["failboat", "sinking"],
                ["tags", "foo", "bar"],
                ["roles", "production"],
                ["kind", "awesome"],
                ["grammar", "/tmp/awesome.lfg"]]
-                
+
       assert_equal config, @a.config
     end
-    
+
     # return_and_exit
-    
+
     def test_return_and_exit
       assert_equal false, Chassis.exit_after_current_dispatch
       assert_equal 'foo', @a.return_and_exit('foo')

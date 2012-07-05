@@ -13,22 +13,22 @@
 
 independent_pool_call(Pool, Method, Parameters, RetType, Parent) ->
   Resource = resource_pool:get(Pool),
-  Result = 
-  try 
+  Result =
+  try
     case is_remote_process_alive(Resource) of
     true -> send_call(Resource, Method, RetType, Parameters);
       false -> parent_died
     end
-  after 
+  after
     resource_pool:refund(Pool, Resource)
   end,
   Parent ! {self(), result, Result},
   done.
 
-safely_send_call_to_pool(Method, Parameters, ApiSpec, Details) -> 
+safely_send_call_to_pool(Method, Parameters, ApiSpec, Details) ->
   safely_send_call_to_pool(Method, Parameters, ApiSpec, pure, Details).
-% Valid retkinds are json and erlang  
-safely_send_call_to_pool(Method, Parameters, ApiSpec, RetType, Details) -> 
+% Valid retkinds are json and erlang
+safely_send_call_to_pool(Method, Parameters, ApiSpec, RetType, Details) ->
   PoolSearch = resource_fountain:pool_for_dispatch(ApiSpec, Details),
   safely_send_call_to_pool_no_lookup(Method, Parameters, RetType, PoolSearch).
 
@@ -47,100 +47,100 @@ safely_send_call_to_pool_no_lookup(Method, Parameters, RetType, Pool) ->
 send_call(Port, Method, Parameters) ->
   send_call(Port, Method, pure, Parameters).
 
-send_call(Port, Method, RetType, Parameters) -> 
-  Call = [Method,RetType|prepare_parameters(Parameters)], 
+send_call(Port, Method, RetType, Parameters) ->
+  Call = [Method,RetType|prepare_parameters(Parameters)],
   case send_call_object_to_port(Port, Call) of
     {error, Error} ->
       {error, binary_to_list(Error)};
-    {Port, timed_out} -> 
+    {Port, timed_out} ->
       {error, "Node timeout!"};
     % {result, Result} is expected, or {result {raw, Result}}
-    X -> 
+    X ->
       X
   end.
 
-send_call_object_to_port(Port, Call) -> 
+send_call_object_to_port(Port, Call) ->
   port_wrapper:send(Port, {call, Call}),
   receive
     {Port, Value} -> Value
   end.
 
-parse_sentence(Port, Sentence) -> 
+parse_sentence(Port, Sentence) ->
   BSent = list_to_binary(Sentence),
   port_wrapper:send(Port, {parse, BSent}),
   receive
     {Port, {result, Fstruct}} -> Fstruct
   end.
-  
-morphemes_for_sentence(Port, Sentence) -> 
+
+morphemes_for_sentence(Port, Sentence) ->
   BSent = list_to_binary(Sentence),
   port_wrapper:send(Port, {morphemes_for_sentence, BSent}),
   receive
     {Port, {result, Morphs}} -> Morphs
   end.
-  
-semrep_for_sentence(Port, Sentence) -> 
+
+semrep_for_sentence(Port, Sentence) ->
   BSent = list_to_binary(Sentence),
   port_wrapper:send(Port, {parse, BSent}),
   receive
     {Port, {result, Semrep}} -> Semrep
   end.
 
-nlmatch_semreps(Port, Semrep1, Semrep2) -> 
+nlmatch_semreps(Port, Semrep1, Semrep2) ->
   port_wrapper:send(Port, {nlmatch, Semrep1, Semrep2}),
   receive
     {Port, {result, Matchstring}} -> Matchstring
   end.
-  
-details(Port) -> 
+
+details(Port) ->
   port_wrapper:send(Port, config),
-  receive 
+  receive
     {Port, {result, Details}} -> process_details(Details)
   end.
 
-heat(Port) -> 
+heat(Port) ->
   Port ! {self(), heat},
   receive
     {Port, hot} -> ok
   end.
 
-heat(Port, Timeout) -> 
+heat(Port, Timeout) ->
   Port ! {self(), heat},
   receive
     {Port, hot} -> ok
     after Timeout -> fail
   end.
 
-api(Port) -> 
+api(Port) ->
   Port ! {self(), api},
   receive
     {Port, API} -> API
-  after ?SLEEP_CYCLE -> 
+  after ?SLEEP_CYCLE ->
     0
   end.
 
 api_signature(Port) -> erlang:phash2(api(Port)).
 
-stop(Port) -> 
+stop(Port) ->
   Port ! shutdown,
   ok.
 
-process_details(DTuple) -> 
+process_details(DTuple) ->
   Details = erlang:tuple_to_list(DTuple),
   Listifiers = [<<"tags">>, <<"roles">>],
   F = fun(Key, Intails) -> listify_detail_for_key(Key, Intails) end,
   lists:map(fun({K,V}) -> {K, purify_detail_value(V)} end, lists:foldl(F, Details, Listifiers)).
 
-listify_detail_for_key(Key, Details) -> 
+listify_detail_for_key(Key, Details) ->
   case lists:keysearch(Key, 1, Details) of
-    {value, KeyTuple} -> 
+    {value, KeyTuple} ->
       [Key|Rest] = erlang:tuple_to_list(KeyTuple),
       lists:keyreplace(Key, 1, Details, {Key, Rest}) ;
-    false -> 
+    false ->
       [{Key, []}|Details]
   end.
 
-prepare_parameters(L) when is_list(L) -> 
+prepare_parameters(L) when is_list(L) ->
   [{K,prepare_pvalue(V)} || {K,V} <- L].
 
 atom_to_binary(Atom) when is_atom(Atom) -> list_to_binary(atom_to_list(Atom)).

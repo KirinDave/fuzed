@@ -1,7 +1,7 @@
 %%%----------------------------------------------------------------------
 %%% File    : yaws.hrl
 %%% Author  : Claes Wikstrom <klacke@hyber.org>
-%%% Purpose : 
+%%% Purpose :
 %%% Created : 16 Jan 2002 by Claes Wikstrom <klacke@hyber.org>
 %%%----------------------------------------------------------------------
 
@@ -9,7 +9,7 @@
 
 
 
-%% flags for gconfs 
+%% flags for gconfs
 -define(GC_TTY_TRACE,                        1).
 -define(GC_DEBUG,                            2).
 -define(GC_AUTH_LOG,                         4).
@@ -24,19 +24,19 @@
 
 -define(GC_DEF, (?GC_AUTH_LOG bor ?GC_FAIL_ON_BIND_ERR)).
 
--define(gc_has_tty_trace(GC), 
+-define(gc_has_tty_trace(GC),
         ((GC#gconf.flags band ?GC_TTY_TRACE) /= 0)).
--define(gc_has_debug(GC), 
+-define(gc_has_debug(GC),
         ((GC#gconf.flags band ?GC_DEBUG) /= 0)).
--define(gc_has_auth_log(GC), 
+-define(gc_has_auth_log(GC),
         ((GC#gconf.flags band ?GC_AUTH_LOG) /= 0)).
--define(gc_has_copy_errlog(GC), 
+-define(gc_has_copy_errlog(GC),
         ((GC#gconf.flags band ?GC_COPY_ERRLOG) /= 0)).
--define(gc_has_backwards_compat_parse(GC), 
+-define(gc_has_backwards_compat_parse(GC),
         ((GC#gconf.flags band ?GC_BACKWARDS_COMPAT_PARSE) /= 0)).
--define(gc_log_has_resolve_hostname(GC), 
+-define(gc_log_has_resolve_hostname(GC),
         ((GC#gconf.flags band ?GC_LOG_RESOLVE_HOSTNAME) /= 0)).
--define(gc_fail_on_bind_err(GC), 
+-define(gc_fail_on_bind_err(GC),
         ((GC#gconf.flags band ?GC_FAIL_ON_BIND_ERR) /= 0)).
 -define(gc_pick_first_virthost_on_nomatch(GC),
         ((GC#gconf.flags band ?GC_PICK_FIRST_VIRTHOST_ON_NOMATCH) /= 0)).
@@ -45,28 +45,28 @@
 -define(gc_use_old_ssl(GC),
         ((GC#gconf.flags band ?GC_USE_OLD_SSL) /= 0)).
 
--define(gc_set_tty_trace(GC, Bool), 
+-define(gc_set_tty_trace(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags,?GC_TTY_TRACE, Bool)}).
--define(gc_set_debug(GC, Bool), 
+-define(gc_set_debug(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags, ?GC_DEBUG, Bool)}).
--define(gc_set_auth_log(GC, Bool), 
+-define(gc_set_auth_log(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags, ?GC_AUTH_LOG, Bool)}).
--define(gc_set_copy_errlog(GC, Bool), 
+-define(gc_set_copy_errlog(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags, ?GC_COPY_ERRLOG, Bool)}).
--define(gc_set_backwards_compat_parse(GC, Bool), 
-        GC#gconf{flags = yaws:flag(GC#gconf.flags, 
+-define(gc_set_backwards_compat_parse(GC, Bool),
+        GC#gconf{flags = yaws:flag(GC#gconf.flags,
                                    ?GC_BACKWARDS_COMPAT_PARSE, Bool)}).
--define(gc_log_set_resolve_hostname(GC, Bool), 
-        GC#gconf{flags = yaws:flag(GC#gconf.flags, 
+-define(gc_log_set_resolve_hostname(GC, Bool),
+        GC#gconf{flags = yaws:flag(GC#gconf.flags,
                                    ?GC_LOG_RESOLVE_HOSTNAME, Bool)}).
--define(gc_set_fail_on_bind_err(GC, Bool), 
+-define(gc_set_fail_on_bind_err(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags,?GC_FAIL_ON_BIND_ERR,Bool)}).
--define(gc_set_pick_first_virthost_on_nomatch(GC, Bool), 
+-define(gc_set_pick_first_virthost_on_nomatch(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags,
                                    ?GC_PICK_FIRST_VIRTHOST_ON_NOMATCH,Bool)}).
--define(gc_set_use_fdsrv(GC, Bool), 
+-define(gc_set_use_fdsrv(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags,?GC_USE_FDSRV,Bool)}).
--define(gc_set_use_old_ssl(GC, Bool), 
+-define(gc_set_use_old_ssl(GC, Bool),
         GC#gconf{flags = yaws:flag(GC#gconf.flags,?GC_USE_OLD_SSL,Bool)}).
 
 
@@ -75,7 +75,7 @@
 -record(gconf,{yaws_dir,           %% topdir of Yaws installation
                trace,              %% false | {true,http}|{true,traffic}
                flags = ?GC_DEF,    %% boolean flags
-               logdir,          
+               logdir,
                ebin_dir = [],
                runmods = [],       %% runmods for entire server
                keepalive_timeout = 15000,
@@ -85,16 +85,16 @@
                large_file_chunk_size = 10240,
                log_wrap_size = 10000000,  % wrap logs after 10M
                cache_refresh_secs = 30,  % seconds  (auto zero when debug)
-               include_dir = [],    %% list of inc dirs for .yaws files 
+               include_dir = [],    %% list of inc dirs for .yaws files
                phpexe = "/usr/bin/php-cgi",  %% cgi capable php executable
                yaws,                %% server string
                id = "default",      %% string identifying this instance of yaws
                enable_soap = false  %% start yaws_soap_srv iff true
-              }).  
+              }).
 
 
 
--record(ssl, 
+-record(ssl,
         {
          keyfile,
          certfile,
@@ -117,15 +117,15 @@
 
 -define(SC_DEF, ?SC_ACCESS_LOG bor ?SC_ADD_PORT).
 
--define(sc_has_access_log(SC), 
+-define(sc_has_access_log(SC),
         (((SC)#sconf.flags band ?SC_ACCESS_LOG) /= 0)).
--define(sc_has_add_port(SC), 
+-define(sc_has_add_port(SC),
         (((SC)#sconf.flags band ?SC_ADD_PORT) /= 0)).
 -define(sc_has_tilde_expand(SC),
         (((SC)#sconf.flags band ?SC_TILDE_EXPAND) /= 0)).
 -define(sc_has_dir_listings(SC),
         (((SC)#sconf.flags band ?SC_DIR_LISTINGS) /= 0)).
--define(sc_has_deflate(SC), 
+-define(sc_has_deflate(SC),
         (((SC)#sconf.flags band ?SC_DEFLATE) /= 0)).
 -define(sc_has_dir_all_zip(SC),
         (((SC)#sconf.flags band ?SC_DIR_ALL_ZIP) /= 0)).
@@ -133,21 +133,21 @@
         (((SC)#sconf.flags band ?SC_DAV) /= 0)).
 
 
--define(sc_set_access_log(SC, Bool), 
+-define(sc_set_access_log(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_ACCESS_LOG, Bool)}).
--define(sc_set_add_port(SC, Bool), 
+-define(sc_set_add_port(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_ADD_PORT, Bool)}).
--define(sc_set_ssl(SC, Bool), 
+-define(sc_set_ssl(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags , ?SC_SSL, Bool)}).
--define(sc_set_tilde_expand(SC, Bool), 
+-define(sc_set_tilde_expand(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_TILDE_EXPAND, Bool)}).
--define(sc_set_dir_listings(SC, Bool), 
+-define(sc_set_dir_listings(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_DIR_LISTINGS, Bool)}).
--define(sc_set_deflate(SC, Bool), 
+-define(sc_set_deflate(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_DEFLATE, Bool)}).
--define(sc_set_dir_all_zip(SC, Bool), 
+-define(sc_set_dir_all_zip(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_DIR_ALL_ZIP, Bool)}).
--define(sc_set_dav(SC, Bool), 
+-define(sc_set_dav(SC, Bool),
         SC#sconf{flags = yaws:flag(SC#sconf.flags, ?SC_DAV, Bool)}).
 
 
@@ -168,7 +168,7 @@
          authdirs = [],
          partial_post_size = nolimit,
          appmods = [],                %% list of modules for this app
-         errormod_404 = yaws_404,     %% the default 404 error module 
+         errormod_404 = yaws_404,     %% the default 404 error module
          errormod_crash = yaws_404,   %% use the same module for crashes
          arg_rewrite_mod = yaws,
          opaque = [],                 %% useful in embedded mode
@@ -196,14 +196,14 @@
 %% this internal record is used and returned by the URL path parser
 
 
--record(urltype, {type,   %% error | yaws | regular | directory | 
-                          %% forbidden | appmod 
+-record(urltype, {type,   %% error | yaws | regular | directory |
+                          %% forbidden | appmod
                   finfo,
                   path = [],
                   fullpath = [], %% deep list (WHY?)
                   dir = [],      %% relative dir where the path leads to
                                  %% flat | unflat need flat for authentication
-                  data,          %% type-specific e.g: Binary | FileDescriptor 
+                  data,          %% type-specific e.g: Binary | FileDescriptor
                                  %% | DirListing | undefined
                   deflate,       %% undefined | Binary | dynamic
                   mime = "text/html",    %% MIME type
@@ -249,7 +249,7 @@
 }).
 
 
-          
+
 -define(READ_TIMEOUT, 30000).
 
 
@@ -261,7 +261,7 @@
 
 
 %% as read by application:get_env()
--record(env, {debug,  
+-record(env, {debug,
               trace,
               traceoutput,
               conf,

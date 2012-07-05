@@ -21,7 +21,7 @@
   }
 ).
 
--record(state, 
+-record(state,
   {
     log_dir,
     details_selectors = [],
@@ -35,33 +35,33 @@
 
 enable_logging(Details) ->
   gen_server:call(?MODULE, {enable_logging, Details}).
-  
+
 disable_logging(Details) ->
   gen_server:call(?MODULE, {disable_logging, Details}).
-  
+
 list_details_selectors() ->
   gen_server:call(?MODULE, {list_details_selectors}).
-  
+
 list_pools() ->
   gen_server:call(?MODULE, {list_pools}).
-  
-  
+
+
 is_pool_logging(Pool, Details) ->
   gen_server:call(?MODULE, {is_pool_logging, Pool, Details}).
-  
-  
-pool_created(Pool) -> 
+
+
+pool_created(Pool) ->
   gen_server:cast(?MODULE, {pool_created, Pool}).
-  
-pool_removed(Pool) -> 
+
+pool_removed(Pool) ->
   gen_server:cast(?MODULE, {pool_removed, Pool}).
-  
+
 node_joined(Pool, Node) ->
   gen_server:cast(?MODULE, {node_joined, Pool, Node}).
-  
+
 node_left(Pool, Node) ->
   gen_server:cast(?MODULE, {node_left, Pool, Node}).
-  
+
 %%--------------------------------------------------------------------
 %% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
 %% Description: Starts the server
@@ -107,7 +107,7 @@ handle_call({enable_logging, Details}, _From, State) ->
       NewPoolsFinfos = init_finfos(Pools, State#state.pools_finfos, State#state.log_dir),
       {reply, ok, State#state{details_selectors=NewDetailsSelectors, pools_finfos=NewPoolsFinfos}}
   end;
-  
+
 handle_call({disable_logging, Details}, _From, State) ->
   DetailsSelectors = State#state.details_selectors,
   IsMember = lists:member(Details, DetailsSelectors),
@@ -120,13 +120,13 @@ handle_call({disable_logging, Details}, _From, State) ->
       error_logger:info_msg("No logging has been enabled for those details~n", []),
       {reply, ok, State}
   end;
-  
+
 handle_call({list_details_selectors}, _From, State) ->
   {reply, State#state.details_selectors, State};
-  
+
 handle_call({list_pools}, _From, State) ->
   {reply, dict:fetch_keys(State#state.pools_finfos), State};
-  
+
 handle_call({is_pool_logging, Pool, Details}, _From, State) ->
   Pred = fun(Spec) ->
     Score = scoring:score_details(Spec, Details),
@@ -144,7 +144,7 @@ handle_call({is_pool_logging, Pool, Details}, _From, State) ->
       NewPoolsFinfos = init_finfo(Pool, State#state.pools_finfos, State#state.log_dir, Details),
       {reply, true, State#state{pools_finfos=NewPoolsFinfos}}
   end;
-  
+
 handle_call(Any, _From, State) ->
   error_logger:info_msg("Unexpected call: ~p~n", [Any]),
   {reply, ok, State}.
@@ -159,22 +159,22 @@ handle_cast({pool_created, Pool}, State) ->
   Finfo = dict:fetch(Pool, State#state.pools_finfos),
   log_line(Finfo#finfo.log_file, "Pool created"),
   {noreply, State};
-  
+
 handle_cast({pool_removed, Pool}, State) ->
   Finfo = dict:fetch(Pool, State#state.pools_finfos),
   log_line(Finfo#finfo.log_file, "Pool removed"),
   {noreply, State};
-  
+
 handle_cast({node_joined, Pool, Node}, State) ->
   Finfo = dict:fetch(Pool, State#state.pools_finfos),
   log_line(Finfo#finfo.log_file, "Node joined: ~p ~p", [Node, node(Node)]),
   {noreply, State};
-  
+
 handle_cast({node_left, Pool, Node}, State) ->
   Finfo = dict:fetch(Pool, State#state.pools_finfos),
   log_line(Finfo#finfo.log_file, "Node left: ~p ~p", [Node, node(Node)]),
   {noreply, State}.
-  
+
 
 %%--------------------------------------------------------------------
 %% Function: handle_info(Info, State) -> {noreply, State} |
@@ -213,7 +213,7 @@ set_all_logging(Details, Logging) ->
     {MatchDetails, _Score} = Match,
     resource_fountain:pool_for_details(MatchDetails)
   end,
-  SetLoggingFun = fun(Pool) -> 
+  SetLoggingFun = fun(Pool) ->
     case Logging of
       false -> error_logger:info_msg("Disabling logging for pool ~p~n", [Pool]);
       true -> error_logger:info_msg("Enabling logging for pool ~p~n", [Pool])
@@ -233,7 +233,7 @@ init_finfo(Pool, PoolsFinfos, LogDir, Details) ->
       Finfo = init_files(Hash, Details, LogDir),
       dict:store(Pool, Finfo, PoolsFinfos)
   end.
-  
+
 init_finfos(Pools, PoolsFinfos, LogDir) ->
   InitFun = fun(Pool, Dict) ->
     Details = resource_pool:details(Pool),
@@ -246,7 +246,7 @@ init_finfos(Pools, PoolsFinfos, LogDir) ->
     end
   end,
   lists:foldl(InitFun, PoolsFinfos, Pools).
-  
+
 init_files(Hash, Details, LogDir) ->
   StringHash = erlang:integer_to_list(Hash),
   LogFile = filename:join(LogDir, StringHash ++ ".log"),
@@ -260,10 +260,10 @@ init_files(Hash, Details, LogDir) ->
       error_logger:info_msg("Unable to create Logger NameFile ~p: ~p~n", [NameFile, Reason])
   end,
   #finfo{log_file=LogFile, name_file=NameFile}.
-  
+
 log_line(LogFile, Line) ->
   log_line(LogFile, Line, []).
-  
+
 log_line(LogFile, Line, Data) ->
   case file:open(LogFile, [write, append]) of
     {ok, Fh} ->

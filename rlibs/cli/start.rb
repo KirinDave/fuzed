@@ -3,11 +3,11 @@ require 'fileutils'
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed start [options]"
-  
+
   opts.on("-n NAME", "--name NAME", "Node name") do |n|
     options[:name] = n
   end
-  
+
   opts.on("--server SERVER", "HTTP Server to use. Choices are: mochiweb, yaws") do |server|
     $stderr.puts "Unknown server type. Using yaws." unless %w[mochiweb yaws].include?(server)
     options[:http_server] = server
@@ -16,12 +16,12 @@ OptionParser.new do |opts|
   opts.on("-d", "--detached", "Run as a daemon") do
     options[:detached] = true
   end
-  
+
   opts.on("-h", "--heartbeat", "Start with a heartbeat.") do
     $stderr.puts "WARNING! Heartbeats not supported with this build!"
   end
 end.parse!
-  
+
 command = ARGV[0]
 
 detached = options[:detached] ? '-detached' : ''

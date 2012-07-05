@@ -11,7 +11,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
   terminate/2, code_change/3]).
 
--record(state, 
+-record(state,
   {
     node_pids = dict:new(),
     pid_pools = dict:new()
@@ -22,9 +22,9 @@
 %% API
 %%====================================================================
 
-watch(Pool, Pid) -> 
+watch(Pool, Pid) ->
   gen_server:cast(?MODULE, {watch, Pool, Pid}).
-  
+
 %%--------------------------------------------------------------------
 %% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
 %% Description: Starts the server
@@ -71,16 +71,16 @@ handle_cast({watch, Pool, Pid}, State) ->
   Node = node(Pid),
   error_logger:info_msg("Now monitoring node ~p~n", [Node]),
   #state{node_pids=NodePids, pid_pools=PidPools} = State,
-  
+
   PidPoolsNew = dict:store(Pid, Pool, PidPools),
-  
+
   case dict:find(Node, NodePids) of
     {ok, _Pids} ->
       NodePidsNew = dict:append(Node, Pid, NodePids);
     error ->
       NodePidsNew = dict:store(Node, [Pid], NodePids)
   end,
-  
+
   {noreply, State#state{node_pids=NodePidsNew, pid_pools=PidPoolsNew}}.
 
 %%--------------------------------------------------------------------
@@ -96,9 +96,9 @@ handle_info({nodedown, Node, Reason}, State) ->
   error_logger:warning_msg("Node ~p went away because ~p. Removing from pools.~n", [Node, Reason]),
   #state{node_pids=NodePids, pid_pools=PidPools} = State,
   case dict:find(Node, NodePids) of
-    error -> 
+    error ->
       {noreply, State};
-    {ok, Pids} -> 
+    {ok, Pids} ->
       PidPoolsNew = remove_pids_from_pools(Pids, PidPools),
       NodePidsNew = dict:erase(Node, NodePids),
       sweep_pools_from_fountain(Pids, PidPools),
@@ -131,7 +131,7 @@ remove_pids_from_pools([], PidPools) ->
 remove_pids_from_pools([Pid|Rest], PidPools) ->
   case dict:find(Pid, PidPools) of
     error -> remove_pids_from_pools(Rest, PidPools);
-    {ok, Pool} -> 
+    {ok, Pool} ->
       resource_pool:remove(Pool, Pid),
       PidPoolsNew = dict:erase(Pid, PidPools),
       remove_pids_from_pools(Rest, PidPoolsNew)
@@ -139,7 +139,7 @@ remove_pids_from_pools([Pid|Rest], PidPools) ->
 
 sweep_pools_from_fountain(Pids, PidPools) -> spff_helper([dict:fetch(X, PidPools) || X <- Pids], []).
 spff_helper([], _) -> ok;
-spff_helper([Pool|Rest], AlreadyDone) -> 
+spff_helper([Pool|Rest], AlreadyDone) ->
   case lists:member(Pool, AlreadyDone) of
     false -> resource_fountain:remove_pool_if_empty(Pool), spff_helper(Rest, [Pool|AlreadyDone]);
     true  -> spff_helper(Rest,AlreadyDone)

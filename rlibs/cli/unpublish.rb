@@ -4,7 +4,7 @@ environment = FUZEDAutoConfig.new
 options = {:master => :default}
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed publish [-m master]"
-  
+
   opts.on("-m", "--master TARGETNODE", "Master node for cookie generation. Defaults to your target.") do |arg|
     options[:master] = arg
   end

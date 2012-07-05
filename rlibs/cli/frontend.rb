@@ -30,37 +30,37 @@ end
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed command [options]"
-  
+
   opts.on("-z HOSTNAME", "--magic HOSTNAME", "Set smart details based off of a hostname") do |n|
     options[:master_name] = "master@#{n}"
   end
-  
+
   opts.on("-n NAME", "--name NAME", "Node name") do |n|
     options[:name] = n
   end
-  
+
   opts.on("-m NAME", "--master NAME", "Master node name") do |n|
     options[:master_name] = n
   end
-  
+
   opts.on("-s", "--spec SPECSTRING", "||-separated list of arguments to apply to your FUZED node") do |n|
     options[:spec] = n
   end
-  
+
   opts.on("--server SERVER", "HTTP Server to use. Choices are: mochiweb, yaws") do |server|
     $stderr.puts "Unknown server type. Using yaws." unless %w[mochiweb yaws].include?(server)
     options[:http_server] = server
   end
-  
+
   opts.on("--framework FRAMEWORK", "Framework to use. Choices are: rails") do |framework|
     $stderr.puts "Unknown framework type. Using rails." unless %w[framework].include?(framework)
     options[:framework] = framework
   end
-  
+
   opts.on("--conf CONF", "Configuration file") do |conf|
     options[:conf] = conf
   end
-  
+
   opts.on("-d", "--detached", "Run as a daemon") do
     options[:detached] = true
   end
@@ -69,11 +69,11 @@ OptionParser.new do |opts|
     options[:docroot] = dir
     raise "No such directory for docroot!" unless File.directory?(dir)
   end
-  
+
   opts.on("--ssl-key KEY", "SSL key file.") do |key|
     options[:ssl_key] = key
   end
-  
+
   opts.on("--ssl-cert CERT", "SSL cert file.") do |cert|
     options[:ssl_cert] = cert
   end
@@ -81,7 +81,7 @@ OptionParser.new do |opts|
   opts.on("-p", "--port PORT", "Port for web server.") do |dir|
     options[:port] = dir
   end
-  
+
   opts.on("-P", "--pidfile PIDFILE", "Location to write pid file.") do |pidfile|
     options[:pidfile] = pidfile
   end

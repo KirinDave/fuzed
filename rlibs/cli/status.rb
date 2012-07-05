@@ -1,7 +1,7 @@
-# --- 
+# ---
 # port: 9001
 # host: localhost
-# specs: 
+# specs:
 # - foo/2
 # - bar/4
 
@@ -12,7 +12,7 @@ require 'fuzed_auto_config'
 options = {:host => :auto, :port => 9001, :spec => []}
 OptionParser.new do |opts|
   opts.banner = "Usage: fuzed status [options]"
-  
+
   opts.on("-c CONFIG", "--config CONFIG", "Configuration file") do |x|
     contents = File.read(x)
     data = YAML.load(contents)
@@ -20,15 +20,15 @@ OptionParser.new do |opts|
     options[:port] = data['port'] if data['port']
     options[:spec] += data['specs'] if data['specs']
   end
-  
+
   opts.on("-h HOST", "--host HOST", "Hostname. Default: localhost") do |x|
     options[:host] = x
   end
-  
+
   opts.on("-p PORT", "--port PORT", "Port. Default: 9001") do |x|
     options[:port] = x
   end
-  
+
   opts.on("-s SPEC", "--spec SPEC", "Specify a kind/number to check on") do |n|
     options[:spec] << n
   end

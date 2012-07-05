@@ -4,31 +4,31 @@
 
 wrap(Command) ->
  spawn(fun() -> process_flag(trap_exit, true), Port = create_port(Command), loop(Port, infinity, Command) end).
-wrap(Command, Timeout) -> 
+wrap(Command, Timeout) ->
   spawn(fun() -> process_flag(trap_exit, true), Port = create_port(Command), loop(Port, Timeout, Command) end).
-  
+
 wrap_link(Command) ->
  spawn_link(fun() -> process_flag(trap_exit, true), Port = create_port(Command), link(Port), loop(Port, infinity, Command) end).
-wrap_link(Command, Timeout) -> 
+wrap_link(Command, Timeout) ->
   spawn_link(fun() -> process_flag(trap_exit, true), Port = create_port(Command), link(Port), loop(Port, Timeout, Command) end).
 
-rpc(WrappedPort, Message) -> 
+rpc(WrappedPort, Message) ->
   send(WrappedPort, Message),
   receive
     {WrappedPort, Result} -> Result
-  after 15000 -> 
+  after 15000 ->
     {WrappedPort, timed_out}
   end.
-  
+
 send(WrappedPort, Message) ->
   WrappedPort ! {self(), {command, term_to_binary(Message)}},
   WrappedPort.
 
 pure_send(WrappedPort, Message) ->
   WrappedPort ! {self(), {just_send_a_command, term_to_binary(Message)}},
-  WrappedPort.  
+  WrappedPort.
 
-shutdown(WrappedPort) -> 
+shutdown(WrappedPort) ->
   WrappedPort ! shutdown,
   true.
 
@@ -37,32 +37,32 @@ create_port(Command) ->
 
 loop(Port, Timeout, Command) ->
   receive
-    noose -> 
+    noose ->
       port_close(Port),
       noose;
     shutdown ->
       port_close(Port),
       exit(shutdown);
-    {Source, host} -> 
+    {Source, host} ->
       Source ! {Port, node()},
       loop(Port,Timeout,Command);
-    {Source, heat} -> 
+    {Source, heat} ->
       Port ! {self(), {command, term_to_binary(ping)}},
       Hot = term_to_binary(pong),
       receive
-        {Port, {data, Hot}} -> 
+        {Port, {data, Hot}} ->
           Source ! {self(), hot}
       end,
       loop(Port, Timeout, Command);
-    {Source, api} -> 
+    {Source, api} ->
       Port ! {self(), {command, term_to_binary(api)}},
       receive
-        {Port, {data, Result}} ->   
+        {Port, {data, Result}} ->
           {result, Api} = binary_to_term(Result),
           Source ! {self(), tuple_to_list(Api)}
       end,
       loop(Port,Timeout,Command);
-    {Source, {command, Message}} -> 
+    {Source, {command, Message}} ->
       Port ! {self(), {command, Message}},
       receive
         {Port, {data, Result}} ->
@@ -72,7 +72,7 @@ loop(Port, Timeout, Command) ->
               Source ! {self(), {result, X}},
               port_close(Port),
               exit(last_result);
-            Z -> 
+            Z ->
               Source ! {self(), Z}
           end
       after Timeout ->
@@ -82,7 +82,7 @@ loop(Port, Timeout, Command) ->
         exit(timed_out)
       end,
       loop(Port,Timeout,Command);
-    {_Source, {just_send_a_command, Message}} -> 
+    {_Source, {just_send_a_command, Message}} ->
       Port ! {self(), {command, Message}},
       loop(Port,Timeout,Command);
     {Port, {exit_status, _Code}} ->
@@ -92,11 +92,11 @@ loop(Port, Timeout, Command) ->
     {'EXIT',_Pid,shutdown} ->
       port_close(Port),
       exit(shutdown);
-    Any -> 
+    Any ->
       error_logger:warning_msg("PortWrapper ~p got unexpected message: ~p~n", [self(), Any]),
       loop(Port, Timeout, Command)
   end.
-    
+
 
 % Local API
 % TODO: Add retry detection
